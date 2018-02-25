@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>crypto-service-parent</artifactId>
+        <groupId>org.wso2.carbon.crypto</groupId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>org.wso2.carbon.crypto.feature</artifactId>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.wso2.carbon.crypto</groupId>
+            <artifactId>org.wso2.carbon.crypto.api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.crypto</groupId>
+            <artifactId>org.wso2.carbon.crypto.impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.crypto</groupId>
+            <artifactId>org.wso2.carbon.crypto.provider</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.wso2.maven</groupId>
+                <artifactId>carbon-p2-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>4-p2-feature-generation</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>p2-feature-gen</goal>
+                        </goals>
+                        <configuration>
+                            <id>org.wso2.carbon.crypto</id>
+                            <propertiesFile>../etc/feature.properties</propertiesFile>
+                            <adviceFile>
+                                <properties>
+                                    <propertyDef>org.wso2.carbon.p2.category.type:server
+                                    </propertyDef>
+                                </properties>
+                            </adviceFile>
+                            <bundles>
+                                <bundleDef>org.wso2.carbon.crypto:org.wso2.carbon.crypto.api</bundleDef>
+                                <bundleDef>org.wso2.carbon.crypto:org.wso2.carbon.crypto.impl</bundleDef>
+                                <bundleDef>org.wso2.carbon.crypto:org.wso2.carbon.crypto.provider</bundleDef>
+                            </bundles>
+                            <importFeatures>
+                                <importFeatureDef>org.wso2.carbon.core:compatible:${carbon.kernel.version}</importFeatureDef>
+                            </importFeatures>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
