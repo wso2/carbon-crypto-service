@@ -32,6 +32,14 @@
     <artifactId>crypto-service-parent</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0-SNAPSHOT</version>
+
+    <scm>
+        <url>https://github.com/wso2/carbon-crypto-service.git</url>
+        <developerConnection>scm:git:https://github.com/wso2/carbon-crypto-service.git</developerConnection>
+        <connection>scm:git:https://github.com/wso2/carbon-crypto-service.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+
     <modules>
         <module>components/org.wso2.carbon.crypto.api</module>
         <module>components/org.wso2.carbon.crypto.impl</module>
