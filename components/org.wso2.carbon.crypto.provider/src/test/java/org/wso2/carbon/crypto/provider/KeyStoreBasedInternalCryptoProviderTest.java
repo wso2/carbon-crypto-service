@@ -71,7 +71,7 @@ public class KeyStoreBasedInternalCryptoProviderTest {
         Cipher cipher = Cipher.getInstance(algorithm);
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
 
-        byte[] ciphertext = cipher.doFinal(plaintext.getBytes());
+        byte[] ciphertext = cipher.doFinal(plaintext.getBytes("UTF-8"));
 
         assertEquals(new String(jksCryptoProvider.decrypt(ciphertext, algorithm, null)), plaintext);
     }
@@ -82,7 +82,7 @@ public class KeyStoreBasedInternalCryptoProviderTest {
         int plaintextLength = 50;
         String plaintext = RandomStringUtils.random(plaintextLength);
 
-        byte[] ciphertext = jksCryptoProvider.encrypt(plaintext.getBytes(), algorithm, null);
+        byte[] ciphertext = jksCryptoProvider.encrypt(plaintext.getBytes("UTF-8"), algorithm, null);
 
         Cipher cipher = Cipher.getInstance(algorithm);
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
