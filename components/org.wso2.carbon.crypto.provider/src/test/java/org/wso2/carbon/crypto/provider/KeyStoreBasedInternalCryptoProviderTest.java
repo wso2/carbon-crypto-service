@@ -37,6 +37,7 @@ public class KeyStoreBasedInternalCryptoProviderTest {
     public static final String KEY_STORE_PASSWORD = "keystore-password";
     public static final String KEY_ALIAS = "key-alias";
     public static final String KEY_PASSWORD = "key-password";
+    public static final String CHAR_ENCODING_UTF_8 = "UTF-8";
     KeyStoreBasedInternalCryptoProvider jksCryptoProvider;
     PublicKey publicKey;
     PrivateKey privateKey;
@@ -71,9 +72,10 @@ public class KeyStoreBasedInternalCryptoProviderTest {
         Cipher cipher = Cipher.getInstance(algorithm);
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
 
-        byte[] ciphertext = cipher.doFinal(plaintext.getBytes("UTF-8"));
+        byte[] ciphertext = cipher.doFinal(plaintext.getBytes(CHAR_ENCODING_UTF_8));
 
-        assertEquals(new String(jksCryptoProvider.decrypt(ciphertext, algorithm, null)), plaintext);
+        assertEquals(new String(jksCryptoProvider.decrypt(ciphertext, algorithm, null),
+                CHAR_ENCODING_UTF_8), plaintext);
     }
 
     @Test(dataProvider = "encryptionAlgorithms")
@@ -82,12 +84,12 @@ public class KeyStoreBasedInternalCryptoProviderTest {
         int plaintextLength = 50;
         String plaintext = RandomStringUtils.random(plaintextLength);
 
-        byte[] ciphertext = jksCryptoProvider.encrypt(plaintext.getBytes("UTF-8"), algorithm, null);
+        byte[] ciphertext = jksCryptoProvider.encrypt(plaintext.getBytes(CHAR_ENCODING_UTF_8), algorithm, null);
 
         Cipher cipher = Cipher.getInstance(algorithm);
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
 
-        assertEquals(new String(cipher.doFinal(ciphertext)), plaintext);
+        assertEquals(new String(cipher.doFinal(ciphertext), CHAR_ENCODING_UTF_8), plaintext);
     }
 
     private KeyStore getKeyStore() throws Exception {
