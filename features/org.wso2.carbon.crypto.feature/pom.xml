@@ -54,9 +54,6 @@
                                 <bundleDef>org.wso2.carbon.crypto:org.wso2.carbon.crypto.impl</bundleDef>
                                 <bundleDef>org.wso2.carbon.crypto:org.wso2.carbon.crypto.provider</bundleDef>
                             </bundles>
-                            <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.core:compatible:${carbon.kernel.version}</importFeatureDef>
-                            </importFeatures>
                         </configuration>
                     </execution>
                 </executions>

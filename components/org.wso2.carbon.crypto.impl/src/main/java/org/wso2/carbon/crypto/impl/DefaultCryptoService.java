@@ -517,6 +517,13 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
             }
 
             mostSuitableProvider = internalCryptoProviders.get(internalCryptoProviderClassName);
+
+            if(mostSuitableProvider == null){
+                String errorMessage = String.format("The configured internal crypto provider class name: '%s' " +
+                        "has not been registered as a service.", internalCryptoProviderClassName);
+
+                throw new CryptoException(errorMessage);
+            }
         } else {
 
             if (log.isDebugEnabled()) {
@@ -621,7 +628,15 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
                 log.debug("Configured external crypto provider class name: " + externalCryptoProviderClassName);
             }
 
-            return externalCryptoProviders.get(externalCryptoProviderClassName);
+            mostSuitableExternalProvider = externalCryptoProviders.get(externalCryptoProviderClassName);
+
+            if(mostSuitableExternalProvider == null){
+                String errorMessage = String.format("The configured external crypto provider class name: '%s' " +
+                        "has not been registered as a service.", externalCryptoProviderClassName);
+
+                throw new CryptoException(errorMessage);
+            }
+
         } else {
 
             if (log.isDebugEnabled()) {

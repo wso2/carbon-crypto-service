@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.crypto.impl.internal;
+package org.wso2.carbon.crypto.impl;
 
 import org.wso2.carbon.crypto.api.CertificateInfo;
 import org.wso2.carbon.crypto.api.CryptoContext;
