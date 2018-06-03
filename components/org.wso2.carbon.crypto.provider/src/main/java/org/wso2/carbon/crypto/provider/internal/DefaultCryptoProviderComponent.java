@@ -35,7 +35,6 @@ import org.wso2.carbon.crypto.api.ExternalCryptoProvider;
 import org.wso2.carbon.crypto.api.InternalCryptoProvider;
 import org.wso2.carbon.crypto.api.KeyResolver;
 import org.wso2.carbon.crypto.provider.ContextIndependentKeyResolver;
-import org.wso2.carbon.crypto.provider.KeyStoreBasedExternalCryptoProvider;
 import org.wso2.carbon.crypto.provider.KeyStoreBasedInternalCryptoProvider;
 import org.wso2.carbon.crypto.provider.SymmetricKeyInternalCryptoProvider;
 
@@ -68,7 +67,6 @@ public class DefaultCryptoProviderComponent {
 
     private ServiceRegistration<InternalCryptoProvider> defaultInternalCryptoProviderRegistration;
     private ServiceRegistration<InternalCryptoProvider> symmetricKeyInternalCryptoProviderRegistration;
-    private ServiceRegistration<ExternalCryptoProvider> defaultExternalCryptoProviderRegistration;
     private ServiceRegistration<KeyResolver> contextIndependentResolverRegistration;
     private ServerConfigurationService serverConfigurationService;
 
@@ -105,7 +103,6 @@ public class DefaultCryptoProviderComponent {
 
         InternalCryptoProvider symmetricKeyInternalCryptoProvider = getSymmetricKeyInternalCryptoProvider();
 
-        ExternalCryptoProvider defaultExternalCryptoProvider = new KeyStoreBasedExternalCryptoProvider();
 
         KeyResolver contextIndependentKeyResolver = getContextIndependentKeyResolver();
 
@@ -127,15 +124,6 @@ public class DefaultCryptoProviderComponent {
                         symmetricKeyInternalCryptoProvider.getClass().getCanonicalName(),
                         InternalCryptoProvider.class.getCanonicalName()));
             }
-        }
-
-        defaultExternalCryptoProviderRegistration = bundleContext.registerService(ExternalCryptoProvider.class,
-                defaultExternalCryptoProvider, null);
-
-        if (log.isDebugEnabled()) {
-            log.debug(String.format("'%s' has been registered as an implementation of '%s'",
-                    defaultExternalCryptoProvider.getClass().getCanonicalName(),
-                    ExternalCryptoProvider.class.getCanonicalName()));
         }
 
         contextIndependentResolverRegistration = bundleContext.registerService(KeyResolver.class,
@@ -184,7 +172,6 @@ public class DefaultCryptoProviderComponent {
 
         defaultInternalCryptoProviderRegistration.unregister();
         symmetricKeyInternalCryptoProviderRegistration.unregister();
-        defaultExternalCryptoProviderRegistration.unregister();
         contextIndependentResolverRegistration.unregister();
     }
 
