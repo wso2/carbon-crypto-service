@@ -29,13 +29,13 @@
     <groupId>org.wso2.carbon.crypto</groupId>
     <artifactId>crypto-service-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.2</version>
+    <version>1.0.3-SNAPSHOT</version>
 
     <scm>
         <url>https://github.com/wso2/carbon-crypto-service.git</url>
         <developerConnection>scm:git:https://github.com/wso2/carbon-crypto-service.git</developerConnection>
         <connection>scm:git:https://github.com/wso2/carbon-crypto-service.git</connection>
-        <tag>v1.0.2</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <modules>
