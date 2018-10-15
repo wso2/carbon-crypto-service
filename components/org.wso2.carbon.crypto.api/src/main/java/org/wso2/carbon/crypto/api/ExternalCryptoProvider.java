@@ -110,7 +110,7 @@ public interface ExternalCryptoProvider {
                             CryptoContext cryptoContext, CertificateInfo certificateInfo) throws CryptoException;
 
     /**
-     * Returns the {@link Certificate} based on the given {@link CryptoContext}
+     * Returns the {@link Certificate} based on the given {@link CryptoContext}.
      *
      * @param cryptoContext   The context information which is used to discover the public key of the external entity.
      * @param certificateInfo The information which is needed to retrieve the certificate.
@@ -122,7 +122,7 @@ public interface ExternalCryptoProvider {
     Certificate getCertificate(CryptoContext cryptoContext, CertificateInfo certificateInfo) throws CryptoException;
 
     /**
-     * Returns the {@link PrivateKey} based on the given {@link CryptoContext}
+     * Returns the {@link PrivateKey} based on the given {@link CryptoContext}.
      *
      * @param cryptoContext  The context information which is used to discover the applicable private key.
      * @param privateKeyInfo The information which is needed to retrieve the private key.
@@ -132,4 +132,43 @@ public interface ExternalCryptoProvider {
      * @throws CryptoException If something unexpected happens during private key discovery.
      */
     PrivateKey getPrivateKey(CryptoContext cryptoContext, PrivateKeyInfo privateKeyInfo) throws CryptoException;
+
+    /**
+     * Computes and return a {@link HybridEncryptionOutput} based on provided {@link HybridEncryptionInput}.
+     *
+     * @param hybridEncryptionInput Input data for hybrid encryption.
+     * @param symmetricAlgorithm    The symmetric encryption/decryption algorithm.
+     * @param asymmetricAlgorithm   The asymmetric encryption/decryption algorithm.
+     * @param javaSecurityProvider  The Java Security API provider.
+     * @param cryptoContext         The context information which is used to discover the public key of the external entity.
+     * @return {@link HybridEncryptionOutput} cipher text with required parameters
+     * @throws CryptoException
+     */
+    default HybridEncryptionOutput hybridEncrypt(HybridEncryptionInput hybridEncryptionInput, String symmetricAlgorithm,
+                                                 String asymmetricAlgorithm, String javaSecurityProvider,
+                                                 CryptoContext cryptoContext, CertificateInfo certificateInfo)
+            throws CryptoException {
+
+        String errorMessage = "Hybrid encryption is not supported by this implementation.";
+        throw new CryptoException(errorMessage);
+    }
+
+    /**
+     * Computes and return clear data based on provided {@link HybridEncryptionOutput}.
+     *
+     * @param hybridEncryptionOutput {@link HybridEncryptionOutput} ciphered data with parameters.
+     * @param symmetricAlgorithm     The symmetric encryption/decryption algorithm.
+     * @param asymmetricAlgorithm    The asymmetric encryption/decryption algorithm.
+     * @param javaSecurityProvider   The Java Security API provider.
+     * @param cryptoContext          The context information which is used to discover the public key of the external entity.
+     * @return the decrypted data
+     * @throws CryptoException
+     */
+    default byte[] hybridDecrypt(HybridEncryptionOutput hybridEncryptionOutput, String symmetricAlgorithm,
+                                 String asymmetricAlgorithm, String javaSecurityProvider, CryptoContext cryptoContext,
+                                 PrivateKeyInfo privateKeyInfo) throws CryptoException {
+
+        String errorMessage = "Hybrid decryption is not supported by this implementation.";
+        throw new CryptoException(errorMessage);
+    }
 }

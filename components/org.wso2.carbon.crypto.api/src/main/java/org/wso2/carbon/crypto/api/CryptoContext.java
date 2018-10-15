@@ -35,7 +35,7 @@ public class CryptoContext {
     private Map<String, String> properties;
 
     /**
-     * The constructor which accepts all the needed information to create a {@link CryptoContext}
+     * The constructor which accepts all the needed information to create a {@link CryptoContext}.
      *
      * @param tenantId     ID of the tenant which the crypto operations are going to be performed on.
      * @param tenantDomain Name of the tenant which the crypto operations are going to be performed on.
