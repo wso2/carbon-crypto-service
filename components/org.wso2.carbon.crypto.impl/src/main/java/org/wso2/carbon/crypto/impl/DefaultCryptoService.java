@@ -26,6 +26,8 @@ import org.wso2.carbon.crypto.api.CryptoContext;
 import org.wso2.carbon.crypto.api.CryptoException;
 import org.wso2.carbon.crypto.api.CryptoService;
 import org.wso2.carbon.crypto.api.ExternalCryptoProvider;
+import org.wso2.carbon.crypto.api.HybridEncryptionInput;
+import org.wso2.carbon.crypto.api.HybridEncryptionOutput;
 import org.wso2.carbon.crypto.api.InternalCryptoProvider;
 import org.wso2.carbon.crypto.api.KeyResolver;
 import org.wso2.carbon.crypto.api.PrivateKeyInfo;
@@ -41,11 +43,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The default implementation of {@link CryptoService}
+ * The default implementation of {@link CryptoService}.
  */
 public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever {
 
-    private final static Log log = LogFactory.getLog(DefaultCryptoService.class);
+    private static final Log log = LogFactory.getLog(DefaultCryptoService.class);
     private Map<String, InternalCryptoProvider> internalCryptoProviders;
     private Map<String, ExternalCryptoProvider> externalCryptoProviders;
     private List<KeyResolver> keyResolvers;
@@ -378,6 +380,93 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
     }
 
     /**
+     * @param hybridEncryptionInput Input data for hybrid encryption.
+     * @param symmetricAlgorithm    The symmetric encryption/decryption algorithm.
+     * @param asymmetricAlgorithm   The asymmetric encryption/decryption algorithm.
+     * @param javaSecurityProvider  The Java Security API provider.
+     * @param cryptoContext         The context information which is used to discover the public key of the external entity.
+     * @return {@link HybridEncryptionOutput} data related to hybrid encryption.
+     * @throws CryptoException
+     */
+    @Override
+    public HybridEncryptionOutput hybridEncrypt(HybridEncryptionInput hybridEncryptionInput, String symmetricAlgorithm, String asymmetricAlgorithm,
+                                                String javaSecurityProvider, CryptoContext cryptoContext) throws CryptoException {
+
+        failIfHybridEncryptOperationInputsAreInvalid(hybridEncryptionInput.getPlainData(), symmetricAlgorithm,
+                asymmetricAlgorithm, cryptoContext);
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Encrypting data using the asymmetric algorithm '%s' and symmetric " +
+                            "algorithm '%s' with Java Security API provider '%s'; %s",
+                    asymmetricAlgorithm, symmetricAlgorithm, javaSecurityProvider, cryptoContext));
+        }
+        CertificateInfo certificateInfo = getCertificateInfo(cryptoContext);
+        if (certificateInfo == null) {
+            throw new CryptoException("Certificate info could not be found for : " + cryptoContext);
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Certificate info found. %s %s", certificateInfo, cryptoContext));
+            }
+        }
+        if (areExternalCryptoProvidersAvailable()) {
+            ExternalCryptoProvider mostSuitableExternalProvider = getMostSuitableExternalProvider();
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("External providers are available. The most suitable provider is '%s'",
+                        mostSuitableExternalProvider.getClass().getCanonicalName()));
+            }
+            return mostSuitableExternalProvider.hybridEncrypt(hybridEncryptionInput, symmetricAlgorithm,
+                    asymmetricAlgorithm, javaSecurityProvider, cryptoContext, certificateInfo);
+        } else {
+            String errorMessage = String.format("No external crypto providers available. Correctly register " +
+                    "a service implementation of '%s' as an OSGi service", ExternalCryptoProvider.class);
+            throw new CryptoException(errorMessage);
+        }
+    }
+
+    /**
+     * @param hybridEncryptionOutput {@link HybridEncryptionOutput} ciphered data with parameters.
+     * @param symmetricAlgorithm     The symmetric encryption/decryption algorithm.
+     * @param asymmetricAlgorithm    The asymmetric encryption/decryption algorithm.
+     * @param javaSecurityProvider   The Java Security API provider.
+     * @param cryptoContext          The context information which is used to discover the public key of the external entity.
+     * @return plain data
+     * @throws CryptoException
+     */
+    @Override
+    public byte[] hybridDecrypt(HybridEncryptionOutput hybridEncryptionOutput, String symmetricAlgorithm,
+                                String asymmetricAlgorithm,
+                                String javaSecurityProvider, CryptoContext cryptoContext) throws CryptoException {
+
+        failIfHybridDecryptOperationInputsAreInvalid(hybridEncryptionOutput, symmetricAlgorithm,
+                asymmetricAlgorithm, cryptoContext);
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Decrypting data using the asymmetric algorithm '%s' and " +
+                            "symmetric algorithm '%s' the Java Security API provider '%s'; %s",
+                    asymmetricAlgorithm, symmetricAlgorithm, javaSecurityProvider, cryptoContext));
+        }
+        PrivateKeyInfo privateKeyInfo = getPrivateKeyInfo(cryptoContext);
+        if (privateKeyInfo == null) {
+            throw new CryptoException("Private key info could not be found for : " + cryptoContext);
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Private key info found. %s %s", privateKeyInfo, cryptoContext));
+            }
+        }
+        if (areExternalCryptoProvidersAvailable()) {
+            ExternalCryptoProvider mostSuitableExternalProvider = getMostSuitableExternalProvider();
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("External providers are available. The most suitable provider is '%s'",
+                        mostSuitableExternalProvider.getClass().getCanonicalName()));
+            }
+            return mostSuitableExternalProvider.hybridDecrypt(hybridEncryptionOutput, symmetricAlgorithm,
+                    asymmetricAlgorithm, javaSecurityProvider, cryptoContext, privateKeyInfo);
+        } else {
+            String errorMessage = String.format("No external crypto providers available. Correctly register " +
+                    "a service implementation of '%s' as an OSGi service", ExternalCryptoProvider.class);
+            throw new CryptoException(errorMessage);
+        }
+    }
+
+    /**
      * @param cryptoContext
      * @return
      * @throws CryptoException
@@ -518,7 +607,7 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
 
             mostSuitableProvider = internalCryptoProviders.get(internalCryptoProviderClassName);
 
-            if(mostSuitableProvider == null){
+            if (mostSuitableProvider == null) {
                 String errorMessage = String.format("The configured internal crypto provider class name: '%s' " +
                         "has not been registered as a service.", internalCryptoProviderClassName);
 
@@ -630,7 +719,7 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
 
             mostSuitableExternalProvider = externalCryptoProviders.get(externalCryptoProviderClassName);
 
-            if(mostSuitableExternalProvider == null){
+            if (mostSuitableExternalProvider == null) {
                 String errorMessage = String.format("The configured external crypto provider class name: '%s' " +
                         "has not been registered as a service.", externalCryptoProviderClassName);
 
@@ -834,16 +923,47 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
     }
 
     private void failIfSignatureVerificationInputIsInvalid(byte[] data, byte[] signature, String algorithm,
-                                                           CryptoContext cryptoContext)
-            throws CryptoException {
+                                                           CryptoContext cryptoContext) throws CryptoException {
 
         String operation = "'Signature Validation'";
-
-        if (signature == null){
+        if (signature == null) {
             throw new CryptoException(String.format("Signature provided for the %s operation " +
                     "can't be null", operation));
         }
-
         failIfExternalCryptoInputIsInvalid(data, algorithm, cryptoContext, operation);
+    }
+
+    private void failIfHybridEncryptOperationInputsAreInvalid(byte[] data, String symmetricAlgorithm,
+                                                              String asymmetricAlgorithm, CryptoContext cryptoContext)
+            throws CryptoException {
+
+        String errorMessage;
+        if (StringUtils.isBlank(symmetricAlgorithm)) {
+            errorMessage = String.format("'%s' symmetric algorithm can't be empty.", symmetricAlgorithm);
+            throw new CryptoException(errorMessage);
+        }
+        failIfExternalCryptoInputIsInvalid(data, asymmetricAlgorithm, cryptoContext, "'External Encrypt'");
+    }
+
+    private void failIfHybridDecryptOperationInputsAreInvalid(HybridEncryptionOutput hybridEncryptionOutput, String symmetricAlgorithm,
+                                                              String asymmetricAlgorithm, CryptoContext cryptoContext) throws CryptoException {
+
+        String errorMessage;
+        if (StringUtils.isBlank(symmetricAlgorithm)) {
+            errorMessage = String.format("'%s' symmetric algorithm can't be empty.", symmetricAlgorithm);
+            throw new CryptoException(errorMessage);
+        }
+        if (hybridEncryptionOutput == null) {
+            errorMessage = String.format("Decryption data input can't be null.");
+            throw new CryptoException(errorMessage);
+        }
+        if (StringUtils.isBlank(asymmetricAlgorithm)) {
+            errorMessage = String.format("'%s' asymmetric algorithm can't be empty.", asymmetricAlgorithm);
+            throw new CryptoException(errorMessage);
+        }
+        if (cryptoContext == null) {
+            errorMessage = "Crypto context can't be null.";
+            throw new CryptoException(errorMessage);
+        }
     }
 }

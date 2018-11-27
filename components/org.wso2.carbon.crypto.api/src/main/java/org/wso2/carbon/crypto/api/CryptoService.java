@@ -70,7 +70,7 @@ public interface CryptoService {
 
     /**
      * Computes and returns the cleartext of the given ciphertext comes from an external entity.
-     * <b>Asymmetric cryptography<b/> is used for decryption.
+     * <b>Asymmetric cryptography</b> is used for decryption.
      *
      * @param ciphertext              The content which the signature should be generated against.
      * @param algorithm               The signature + hashing algorithm to be used in signing.
@@ -111,7 +111,7 @@ public interface CryptoService {
                             String javaSecurityAPIProvider, CryptoContext cryptoContext) throws CryptoException;
 
     /**
-     * Returns the {@link Certificate} based on the given {@link CryptoContext}
+     * Returns the {@link Certificate} based on the given {@link CryptoContext}.
      *
      * @param cryptoContext The context information which is used to discover the public key of the external entity.
      * @return The {@link Certificate} relates with the given context.
@@ -119,4 +119,45 @@ public interface CryptoService {
      */
     Certificate getCertificate(CryptoContext cryptoContext) throws CryptoException;
 
+    /**
+     * In hybrid encryption clear data is encrypted using symmetric encryption mechanism
+     * and symmetric key used for encryption is encrypted with asymmetric encryption.
+     * Computes and return a {@link HybridEncryptionOutput} based on provided clear data.
+     *
+     * @param hybridEncryptionInput Input data for hybrid encryption.
+     * @param symmetricAlgorithm    The symmetric encryption/decryption algorithm.
+     * @param asymmetricAlgorithm   The asymmetric encryption/decryption algorithm.
+     * @param javaSecurityProvider  The Java Security API provider.
+     * @param cryptoContext         The context information which is used to discover the public key of the external entity.
+     * @return {@link HybridEncryptionOutput} cipher text with required parameters
+     * @throws CryptoException
+     */
+    default HybridEncryptionOutput hybridEncrypt(HybridEncryptionInput hybridEncryptionInput, String symmetricAlgorithm,
+                                                 String asymmetricAlgorithm, String javaSecurityProvider,
+                                                 CryptoContext cryptoContext) throws CryptoException {
+
+        String errorMessage = "Hybrid encryption is not supported by this implementation.";
+        throw new CryptoException(errorMessage);
+    }
+
+    /**
+     * In hybrid decryption symmetric key used for encryption is decrypted with asymmetric decryption
+     * and cipher data is decrypted using symmetric decryption mechanism.
+     * Computes and return clear data based on provided {@link HybridEncryptionOutput}
+     *
+     * @param hybridEncryptionOutput {@link HybridEncryptionOutput} ciphered data with parameters.
+     * @param symmetricAlgorithm     The symmetric encryption/decryption algorithm.
+     * @param asymmetricAlgorithm    The asymmetric encryption/decryption algorithm.
+     * @param javaSecurityProvider   The Java Security API provider.
+     * @param cryptoContext          The context information which is used to discover the public key of the external entity.
+     * @return the decrypted data
+     * @throws CryptoException
+     */
+    default byte[] hybridDecrypt(HybridEncryptionOutput hybridEncryptionOutput, String symmetricAlgorithm,
+                                 String asymmetricAlgorithm, String javaSecurityProvider,
+                                 CryptoContext cryptoContext) throws CryptoException {
+
+        String errorMessage = "Hybrid decryption is not supported by this implementation.";
+        throw new CryptoException(errorMessage);
+    }
 }
