@@ -236,7 +236,7 @@
         <carbon.base.osgi.version.range>[1.0.0,1.1.0)</carbon.base.osgi.version.range>
 
         <!-- Dependency versions -->
-        <carbon.kernel.version>4.4.11</carbon.kernel.version>
+        <carbon.kernel.version>4.5.0-m1</carbon.kernel.version>
         <commons-lang.wso2.version>2.6.0.wso2v1</commons-lang.wso2.version>
         <equinox.osgi.version>3.9.1.v20130814-1242</equinox.osgi.version>
         <equinox.osgi.services.version>3.5.100.v20160504-1419</equinox.osgi.services.version>
