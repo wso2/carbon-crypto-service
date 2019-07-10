@@ -171,7 +171,9 @@ public class DefaultCryptoProviderComponent {
     public void deactivate(ComponentContext context) {
 
         defaultInternalCryptoProviderRegistration.unregister();
-        symmetricKeyInternalCryptoProviderRegistration.unregister();
+        if (symmetricKeyInternalCryptoProviderRegistration != null) {
+            symmetricKeyInternalCryptoProviderRegistration.unregister();
+        }
         contextIndependentResolverRegistration.unregister();
     }
 

@@ -229,11 +229,11 @@
         <carbon.crypto.package.export.version>${project.version}</carbon.crypto.package.export.version>
 
         <!-- Dependency import version ranges -->
-        <carbon.crypto.api.imp.pkg.version.range>[1.0.0,1.1.0)</carbon.crypto.api.imp.pkg.version.range>
+        <carbon.crypto.api.imp.pkg.version.range>[1.1.0,1.2.0)</carbon.crypto.api.imp.pkg.version.range>
         <osgi.service.component.imp.pkg.version.range>[1.2.0, 2.0.0)</osgi.service.component.imp.pkg.version.range>
         <osgi.framework.imp.pkg.version.range>[1.7.0, 2.0.0)</osgi.framework.imp.pkg.version.range>
         <commons-logging.osgi.version.range>[1.2,2.0)</commons-logging.osgi.version.range>
-        <carbon.base.osgi.version.range>[1.0.0,1.1.0)</carbon.base.osgi.version.range>
+        <carbon.base.osgi.version.range>[1.1.0,1.2.0)</carbon.base.osgi.version.range>
 
         <!-- Dependency versions -->
         <carbon.kernel.version>4.5.0-m1</carbon.kernel.version>

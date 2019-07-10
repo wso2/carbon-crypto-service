@@ -74,7 +74,7 @@
     </build>
 
     <properties>
-        <carbon.crypto.api.imp.pkg.version.range>[1.0.0,1.1.0)</carbon.crypto.api.imp.pkg.version.range>
+        <carbon.crypto.api.imp.pkg.version.range>[1.1.0,1.2.0)</carbon.crypto.api.imp.pkg.version.range>
     </properties>
 
 
