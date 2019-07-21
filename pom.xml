@@ -109,9 +109,9 @@
                 <version>${commons-lang.wso2.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.logging</artifactId>
-                <version>${carbon.kernel.version}</version>
+                <groupId>org.ops4j.pax.logging</groupId>
+                <artifactId>pax-logging-api</artifactId>
+                <version>${pax.logging.api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.testng</groupId>
@@ -124,8 +124,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.logging</artifactId>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-lang.wso2</groupId>
@@ -162,19 +162,6 @@
                         <source>1.7</source>
                         <target>1.7</target>
                     </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.felix</groupId>
-                    <artifactId>maven-scr-plugin</artifactId>
-                    <version>${maven.scr.plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <id>generate-scr-scrdescriptor</id>
-                            <goals>
-                                <goal>scr</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
@@ -246,9 +233,10 @@
         <!-- Plugin versions -->
         <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
         <maven.scr.plugin.version>1.22.0</maven.scr.plugin.version>
-        <maven.bundle.plugin.version>2.4.0</maven.bundle.plugin.version>
+        <maven.bundle.plugin.version>3.2.0</maven.bundle.plugin.version>
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
         <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
+        <pax.logging.api.version>1.10.1</pax.logging.api.version>
 
     </properties>
 </project>
