@@ -241,7 +241,7 @@
         <carbon.base.osgi.version.range>[1.1.0,1.2.0)</carbon.base.osgi.version.range>
 
         <!-- Dependency versions -->
-        <carbon.kernel.version>4.5.0-m3</carbon.kernel.version>
+        <carbon.kernel.version>4.5.0</carbon.kernel.version>
         <commons-lang.wso2.version>2.6.0.wso2v1</commons-lang.wso2.version>
         <equinox.osgi.version>3.9.1.v20130814-1242</equinox.osgi.version>
         <equinox.osgi.services.version>3.5.100.v20160504-1419</equinox.osgi.services.version>
@@ -250,7 +250,6 @@
 
         <!-- Plugin versions -->
         <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
-        <maven.scr.plugin.version>1.22.0</maven.scr.plugin.version>
         <maven.bundle.plugin.version>3.2.0</maven.bundle.plugin.version>
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
         <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
