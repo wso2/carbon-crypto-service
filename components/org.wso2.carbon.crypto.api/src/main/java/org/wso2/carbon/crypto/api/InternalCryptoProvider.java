@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.crypto.api;
 
+import java.security.cert.Certificate;
+
 /**
  * The service contract for internal crypto providers.
  * An internal crypto provider is used for crypto needs related to internal operations.
@@ -51,5 +53,22 @@ public interface InternalCryptoProvider {
      * @throws CryptoException If something unexpected happens during the decryption operation.
      */
     byte[] decrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider) throws CryptoException;
+
+    /**
+     * Computes and returns the ciphertext of the given cleartext.
+     *
+     * @param cleartext                     The cleartext to be encrypted.
+     * @param algorithm                     The encryption / decryption algorithm
+     * @param javaSecurityAPIProvider       The Java Security API provider.
+     * @param returnSelfContainedCipherText Whether cipher text need to be self contained.
+     * @return The ciphertext
+     * @throws CryptoException
+     */
+    default byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider,
+                           boolean returnSelfContainedCipherText) throws CryptoException {
+
+        String errorMessage = "Encryption with self contained cipher text is not supported by this implementation.";
+        throw new CryptoException(errorMessage);
+    }
 
 }

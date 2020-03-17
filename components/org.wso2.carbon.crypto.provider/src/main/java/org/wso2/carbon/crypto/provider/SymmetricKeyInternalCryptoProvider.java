@@ -40,6 +40,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
 
     private static Log log = LogFactory.getLog(SymmetricKeyInternalCryptoProvider.class);
     private String secretKey;
+    private static final String DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM = "AES";
 
     public SymmetricKeyInternalCryptoProvider(String secretKey) {
 
@@ -61,6 +62,9 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
         try {
             Cipher cipher;
 
+            if (StringUtils.isBlank(algorithm)) {
+                algorithm = DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM;
+            }
             if (StringUtils.isBlank(javaSecurityAPIProvider)) {
                 cipher = Cipher.getInstance(algorithm);
             } else {
@@ -97,6 +101,9 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
         try {
             Cipher cipher;
 
+            if (StringUtils.isBlank(algorithm)) {
+                algorithm = DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM;
+            }
             if (StringUtils.isBlank(javaSecurityAPIProvider)) {
                 cipher = Cipher.getInstance(algorithm);
             } else {

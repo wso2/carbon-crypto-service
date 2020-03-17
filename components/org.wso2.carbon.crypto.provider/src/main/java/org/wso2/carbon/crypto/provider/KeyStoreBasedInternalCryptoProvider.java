@@ -44,6 +44,7 @@ import javax.crypto.NoSuchPaddingException;
 public class KeyStoreBasedInternalCryptoProvider implements InternalCryptoProvider {
 
     private static Log log = LogFactory.getLog(KeyStoreBasedInternalCryptoProvider.class);
+    private static final String DEFAULT_ASSYMETRIC_CRYPTO_ALGORITHM = "RSA";
 
     private KeyStore keyStore;
     private String keyAlias;
@@ -71,6 +72,9 @@ public class KeyStoreBasedInternalCryptoProvider implements InternalCryptoProvid
         try {
             Cipher cipher;
 
+            if (StringUtils.isBlank(algorithm)) {
+                algorithm = DEFAULT_ASSYMETRIC_CRYPTO_ALGORITHM;
+            }
             if (StringUtils.isBlank(javaSecurityAPIProvider)) {
                 cipher = Cipher.getInstance(algorithm);
             } else {
@@ -121,6 +125,9 @@ public class KeyStoreBasedInternalCryptoProvider implements InternalCryptoProvid
         try {
             Cipher cipher;
 
+            if (StringUtils.isBlank(algorithm)) {
+                algorithm = DEFAULT_ASSYMETRIC_CRYPTO_ALGORITHM;
+            }
             if (StringUtils.isBlank(javaSecurityAPIProvider)) {
                 cipher = Cipher.getInstance(algorithm);
             } else {

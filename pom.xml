@@ -119,6 +119,11 @@
                 <version>${testng.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${version.com.google.code.gson}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -254,6 +259,8 @@
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
         <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
         <pax.logging.api.version>1.10.1</pax.logging.api.version>
+
+        <version.com.google.code.gson>2.8.5</version.com.google.code.gson>
 
     </properties>
 </project>
