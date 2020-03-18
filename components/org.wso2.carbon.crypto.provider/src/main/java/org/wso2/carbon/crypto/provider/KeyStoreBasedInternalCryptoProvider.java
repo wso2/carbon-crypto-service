@@ -169,8 +169,7 @@ public class KeyStoreBasedInternalCryptoProvider implements InternalCryptoProvid
                           boolean returnSelfContainedCipherText) throws CryptoException {
 
         byte[] encryptedKey = encrypt(cleartext, algorithm, javaSecurityAPIProvider);
-        String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
-        if (StringUtils.isNotBlank(cipherTransformation) && returnSelfContainedCipherText) {
+        if (returnSelfContainedCipherText) {
             Certificate certificate = null;
             try {
                 certificate = getCertificateFromStore();

@@ -132,9 +132,9 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
                           boolean returnSelfContainedCipherText) throws CryptoException {
 
         byte[] encryptedKey = encrypt(cleartext, algorithm, javaSecurityAPIProvider);
-        if (!returnSelfContainedCipherText) {
-            return encryptedKey;
-        }
+        //When symmetric encryption algorithm with padding is introduced, we can create self contained cipher texts.
+        //Then we can utilize the returnSelfContainedCipherText parameter and add the necessary logic to provide a
+        // selfcontained cipher text.
         return encryptedKey;
     }
 
