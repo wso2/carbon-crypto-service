@@ -18,14 +18,10 @@
 
 package org.wso2.carbon.crypto.impl;
 
-import com.google.gson.Gson;
-import org.apache.axiom.om.util.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.crypto.api.CertificateInfo;
-import org.wso2.carbon.crypto.api.CipherMetaDataHolder;
 import org.wso2.carbon.crypto.api.CryptoContext;
 import org.wso2.carbon.crypto.api.CryptoException;
 import org.wso2.carbon.crypto.api.CryptoService;
@@ -37,12 +33,8 @@ import org.wso2.carbon.crypto.api.KeyResolver;
 import org.wso2.carbon.crypto.api.PrivateKeyInfo;
 import org.wso2.carbon.crypto.api.PrivateKeyRetriever;
 
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -61,9 +53,6 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
     private List<KeyResolver> keyResolvers;
     private String internalCryptoProviderClassName;
     private String externalCryptoProviderClassName;
-    private static final String CIPHER_TRANSFORMATION_SYSTEM_PROPERTY = "org.wso2.CipherTransformation";
-    private static final String SYMMETRIC_INTERNAL_CRYPTO_PROVIDER_CLASS_NAME =
-            "org.wso2.carbon.crypto.provider.SymmetricKeyInternalCryptoProvider";
 
     public DefaultCryptoService() {
 
@@ -541,26 +530,8 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
                 log.debug(String.format("Internal providers are available. The most suitable provider is '%s'",
                         mostSuitableInternalProvider.getClass().getCanonicalName()));
             }
-            byte[] encryptedKey = mostSuitableInternalProvider
-                    .encrypt(cleartext, algorithm, javaSecurityAPIProvider);
-            String mostSuitableInternalProviderName = mostSuitableInternalProvider.getClass().getName();
-            boolean isSymmetricKeyInternalProvider =
-                    SYMMETRIC_INTERNAL_CRYPTO_PROVIDER_CLASS_NAME
-                            .equals(mostSuitableInternalProviderName);
-            String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
-            if (StringUtils.isNotBlank(cipherTransformation) && returnSelfContainedCipherText &&
-                    !isSymmetricKeyInternalProvider) {
-                Certificate certificate = getCertificate(CryptoContext.buildEmptyContext(
-                        MultitenantConstants.SUPER_TENANT_ID, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME));
-                try {
-                    encryptedKey = createSelfContainedCiphertext(encryptedKey, algorithm, certificate);
-                } catch (CertificateEncodingException e) {
-                    throw new CryptoException("Error while encoding certificate for self contained cipher text.", e);
-                } catch (NoSuchAlgorithmException e) {
-                    throw new CryptoException("Error while calculating thumb print for self contained cipher text.", e);
-                }
-            }
-            return encryptedKey;
+            return mostSuitableInternalProvider
+                    .encrypt(cleartext, algorithm, javaSecurityAPIProvider, returnSelfContainedCipherText);
 
         } else {
             String errorMessage = String.format("No internal crypto providers available. Correctly register " +
@@ -1034,42 +1005,5 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
             errorMessage = "Crypto context can't be null.";
             throw new CryptoException(errorMessage);
         }
-    }
-
-    private byte[] createSelfContainedCiphertext(byte[] originalCipher, String transformation, Certificate certificate)
-            throws CertificateEncodingException, NoSuchAlgorithmException {
-
-        Gson gson = new Gson();
-        CipherMetaDataHolder cipherHolder = new CipherMetaDataHolder();
-        cipherHolder.setCipherText(Base64.encode(originalCipher));
-        cipherHolder.setTransformation(transformation);
-        cipherHolder.setThumbPrint(calculateThumbprint(certificate, "SHA-1"), "SHA-1");
-        String cipherWithMetadataStr = gson.toJson(cipherHolder);
-        if (log.isDebugEnabled()) {
-            log.debug("Cipher with meta data : " + cipherWithMetadataStr);
-        }
-        return cipherWithMetadataStr.getBytes(Charset.defaultCharset());
-    }
-
-    private String calculateThumbprint(Certificate certificate, String digest)
-            throws NoSuchAlgorithmException, CertificateEncodingException {
-
-        MessageDigest messageDigest = MessageDigest.getInstance(digest);
-        messageDigest.update(certificate.getEncoded());
-        byte[] digestByteArray = messageDigest.digest();
-        char[] hexCharacters = new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B',
-                'C', 'D', 'E', 'F'};
-
-
-        // convert digest in form of byte array to hex format
-        StringBuffer strBuffer = new StringBuffer();
-
-        for (int i = 0; i < digestByteArray.length; i++) {
-            int leftNibble = (digestByteArray[i] & 0xF0) >> 4;
-            int rightNibble = (digestByteArray[i] & 0x0F);
-            strBuffer.append(hexCharacters[leftNibble]).append(hexCharacters[rightNibble]);
-        }
-
-        return strBuffer.toString();
     }
 }

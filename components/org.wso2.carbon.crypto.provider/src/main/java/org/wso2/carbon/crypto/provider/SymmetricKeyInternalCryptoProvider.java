@@ -127,6 +127,17 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
         }
     }
 
+    @Override
+    public byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider,
+                          boolean returnSelfContainedCipherText) throws CryptoException {
+
+        byte[] encryptedKey = encrypt(cleartext, algorithm, javaSecurityAPIProvider);
+        if (!returnSelfContainedCipherText) {
+            return encryptedKey;
+        }
+        return encryptedKey;
+    }
+
     private SecretKeySpec getSecretKey(String algorithm) {
 
         return new SecretKeySpec(secretKey.getBytes(), 0, secretKey.getBytes().length, algorithm);
