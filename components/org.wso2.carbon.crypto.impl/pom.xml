@@ -56,6 +56,7 @@
                         </Bundle-SymbolicName>
                         <Private-Package>org.wso2.carbon.crypto.impl.internal</Private-Package>
                         <Import-Package>
+                            org.apache.axiom.*;version="${imp.pkg.version.axiom}",
                             org.wso2.carbon.crypto.api; version="${carbon.crypto.api.imp.pkg.version.range}",
                             *;resolution:=optional
                         </Import-Package>

@@ -61,6 +61,9 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
     private List<KeyResolver> keyResolvers;
     private String internalCryptoProviderClassName;
     private String externalCryptoProviderClassName;
+    private static final String CIPHER_TRANSFORMATION_SYSTEM_PROPERTY = "org.wso2.CipherTransformation";
+    private static final String SYMMETRIC_INTERNAL_CRYPTO_PROVIDER_CLASS_NAME =
+            "org.wso2.carbon.crypto.provider.SymmetricKeyInternalCryptoProvider";
 
     public DefaultCryptoService() {
 
@@ -511,6 +514,7 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
 
     /**
      * Computes and returns the ciphertext of the given cleartext.
+     *
      * @param cleartext                     The cleartext to be encrypted.
      * @param algorithm                     The encryption / decryption algorithm
      * @param javaSecurityAPIProvider       The Java Security API provider.
@@ -539,8 +543,13 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
             }
             byte[] encryptedKey = mostSuitableInternalProvider
                     .encrypt(cleartext, algorithm, javaSecurityAPIProvider);
-
-            if (returnSelfContainedCipherText) {
+            String mostSuitableInternalProviderName = mostSuitableInternalProvider.getClass().getName();
+            boolean isSymmetricKeyInternalProvider =
+                    SYMMETRIC_INTERNAL_CRYPTO_PROVIDER_CLASS_NAME
+                            .equals(mostSuitableInternalProviderName);
+            String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
+            if (StringUtils.isNotBlank(cipherTransformation) && returnSelfContainedCipherText &&
+                    !isSymmetricKeyInternalProvider) {
                 Certificate certificate = getCertificate(CryptoContext.buildEmptyContext(
                         MultitenantConstants.SUPER_TENANT_ID, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME));
                 try {

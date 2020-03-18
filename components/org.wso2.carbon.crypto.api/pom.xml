@@ -58,6 +58,7 @@
                         <Import-Package>
                             org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
+                            org.apache.axiom.*;version="${imp.pkg.version.axiom}",
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.crypto.api.internal,
