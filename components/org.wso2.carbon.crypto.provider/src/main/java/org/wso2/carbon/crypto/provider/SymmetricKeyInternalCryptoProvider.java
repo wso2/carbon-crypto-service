@@ -134,7 +134,8 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
         byte[] encryptedKey = encrypt(cleartext, algorithm, javaSecurityAPIProvider);
         //When symmetric encryption algorithm with padding is introduced, we can create self contained cipher texts.
         //Then we can utilize the returnSelfContainedCipherText parameter and add the necessary logic to provide a
-        // selfcontained cipher text.
+        // self contained cipher text. As of now, no cipher meta data is included in the cipher text. It contains
+        // only the cipher.
         return encryptedKey;
     }
 

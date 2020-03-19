@@ -152,8 +152,9 @@ public class KeyStoreBasedInternalCryptoProvider implements InternalCryptoProvid
             return cipher.doFinal(ciphertext);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | NoSuchProviderException | BadPaddingException
                 | IllegalBlockSizeException | InvalidKeyException | UnrecoverableKeyException | KeyStoreException e) {
-            String errorMessage = String.format("An error occurred while decrypting using the algorithm : '%s'"
-                    , algorithm);
+            String errorMessage = String.format("An error occurred while decrypting using the algorithm : '%s', and " +
+                            "crypto provider : '%s'"
+                    , algorithm, this.getClass().getName());
 
             // Log the exception from client libraries, to avoid missing information if callers code doesn't log it
             if(log.isDebugEnabled()){
@@ -175,8 +176,9 @@ public class KeyStoreBasedInternalCryptoProvider implements InternalCryptoProvid
                 certificate = getCertificateFromStore();
                 encryptedKey = createSelfContainedCiphertext(encryptedKey, algorithm, certificate);
             } catch (KeyStoreException | CertificateEncodingException | NoSuchAlgorithmException e) {
-                String errorMessage = String.format("An error occurred while decrypting using the algorithm : '%s'"
-                        , algorithm);
+                String errorMessage = String.format("An error occurred while encrypting using the algorithm : '%s', " +
+                                "and crypto provider : '%s'"
+                        , algorithm, this.getClass().getName());
 
                 // Log the exception from client libraries, to avoid missing information if callers code doesn't log it
                 if (log.isDebugEnabled()) {
