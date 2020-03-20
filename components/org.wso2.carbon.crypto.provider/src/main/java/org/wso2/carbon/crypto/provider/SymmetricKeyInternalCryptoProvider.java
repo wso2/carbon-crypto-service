@@ -40,6 +40,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
 
     private static Log log = LogFactory.getLog(SymmetricKeyInternalCryptoProvider.class);
     private String secretKey;
+    private static final String DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM = "AES";
 
     public SymmetricKeyInternalCryptoProvider(String secretKey) {
 
@@ -61,6 +62,9 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
         try {
             Cipher cipher;
 
+            if (StringUtils.isBlank(algorithm)) {
+                algorithm = DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM;
+            }
             if (StringUtils.isBlank(javaSecurityAPIProvider)) {
                 cipher = Cipher.getInstance(algorithm);
             } else {
@@ -97,6 +101,9 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
         try {
             Cipher cipher;
 
+            if (StringUtils.isBlank(algorithm)) {
+                algorithm = DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM;
+            }
             if (StringUtils.isBlank(javaSecurityAPIProvider)) {
                 cipher = Cipher.getInstance(algorithm);
             } else {
@@ -118,6 +125,18 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
 
             throw new CryptoException(errorMessage, e);
         }
+    }
+
+    @Override
+    public byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider,
+                          boolean returnSelfContainedCipherText) throws CryptoException {
+
+        byte[] encryptedKey = encrypt(cleartext, algorithm, javaSecurityAPIProvider);
+        //When symmetric encryption algorithm with padding is introduced, we can create self contained cipher texts.
+        //Then we can utilize the returnSelfContainedCipherText parameter and add the necessary logic to provide a
+        // self contained cipher text. As of now, no cipher meta data is included in the cipher text. It contains
+        // only the cipher.
+        return encryptedKey;
     }
 
     private SecretKeySpec getSecretKey(String algorithm) {

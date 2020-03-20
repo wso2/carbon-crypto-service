@@ -501,6 +501,46 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
         }
     }
 
+    /**
+     * Computes and returns the ciphertext of the given cleartext.
+     *
+     * @param cleartext                     The cleartext to be encrypted.
+     * @param algorithm                     The encryption / decryption algorithm
+     * @param javaSecurityAPIProvider       The Java Security API provider.
+     * @param returnSelfContainedCipherText Whether cipher text need to be self contained.
+     * @return
+     * @throws CryptoException
+     */
+    @Override
+    public byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider,
+                          boolean returnSelfContainedCipherText) throws CryptoException {
+
+        failIfInternalCryptoInputsAreNotValid(cleartext, algorithm, "'Internal Encryption'");
+        if (log.isDebugEnabled()) {
+
+            log.debug(String.format("Encrypting data using the algorithm '%s' and the Java Security API provider '%s'.",
+                    algorithm, javaSecurityAPIProvider));
+        }
+        if (areInternalCryptoProvidersAvailable()) {
+
+            InternalCryptoProvider mostSuitableInternalProvider = getMostSuitableInternalProvider();
+
+            if (log.isDebugEnabled()) {
+
+                log.debug(String.format("Internal providers are available. The most suitable provider is '%s'",
+                        mostSuitableInternalProvider.getClass().getCanonicalName()));
+            }
+            return mostSuitableInternalProvider
+                    .encrypt(cleartext, algorithm, javaSecurityAPIProvider, returnSelfContainedCipherText);
+
+        } else {
+            String errorMessage = String.format("No internal crypto providers available. Correctly register " +
+                    "a service implementation of '%s' as an OSGi service", InternalCryptoProvider.class);
+            throw new CryptoException(errorMessage);
+        }
+
+    }
+
     // ------------ Management methods of the default crypto service starts here. --------------------
 
     /**

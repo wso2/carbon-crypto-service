@@ -30,6 +30,17 @@
     <packaging>bundle</packaging>
     <description>Carbon Crypto - API</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.base</artifactId>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -47,6 +58,7 @@
                         <Import-Package>
                             org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
+                            org.apache.axiom.*;version="${imp.pkg.version.axiom}",
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.crypto.api.internal,
