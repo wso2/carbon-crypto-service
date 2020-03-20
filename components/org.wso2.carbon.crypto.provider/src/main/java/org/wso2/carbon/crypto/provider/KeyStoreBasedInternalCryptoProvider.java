@@ -153,8 +153,7 @@ public class KeyStoreBasedInternalCryptoProvider implements InternalCryptoProvid
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | NoSuchProviderException | BadPaddingException
                 | IllegalBlockSizeException | InvalidKeyException | UnrecoverableKeyException | KeyStoreException e) {
             String errorMessage = String.format("An error occurred while decrypting using the algorithm : '%s', and " +
-                            "crypto provider : '%s'"
-                    , algorithm, this.getClass().getName());
+                    "crypto provider : '%s'", algorithm, this.getClass().getName());
 
             // Log the exception from client libraries, to avoid missing information if callers code doesn't log it
             if(log.isDebugEnabled()){
