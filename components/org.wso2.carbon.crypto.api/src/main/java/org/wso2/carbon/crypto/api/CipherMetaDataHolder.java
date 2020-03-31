@@ -20,6 +20,8 @@ package org.wso2.carbon.crypto.api;
 import com.google.gson.Gson;
 import org.apache.axiom.om.util.Base64;
 
+import java.nio.charset.Charset;
+
 /**
  * This the POJO class to hold metadata of the cipher.
  */
@@ -36,6 +38,9 @@ public class CipherMetaDataHolder {
 
     // Digest used to generate certificate thumbprint.
     private String tpd;
+
+    // Initialization vector used in AES-GCM mode.
+    private String iv;
 
 
     public String getTransformation() {
@@ -75,6 +80,36 @@ public class CipherMetaDataHolder {
     }
 
     /**
+     * Method to return the initialization vector in AES/GCM/NoPadding transformation.
+     *
+     * @return initialization vector value in String format.
+     */
+    public String getIv() {
+
+        return iv;
+    }
+
+    /**
+     * Method to set the initialization vector in AES/GCM/NoPadding transformation.
+     *
+     * @param iv initialization vector value in String format
+     */
+    public void setIv(String iv) {
+
+        this.iv = iv;
+    }
+
+    /**
+     * Method to return initialization vector as a byte array
+     *
+     * @return byte array
+     */
+    public byte[] getIvBase64Decoded() {
+
+        return Base64.decode(iv);
+    }
+
+    /**
      * Function to base64 encode ciphertext and set ciphertext
      * @param cipher
      */
@@ -92,10 +127,65 @@ public class CipherMetaDataHolder {
         this.tpd = digest;
     }
 
+    public byte[] getSelfContainedCiphertextWithIv(byte[] originalCipher, byte[] iv) {
+
+        Gson gson = new Gson();
+        CipherInitializationVectorHolder cipherInitializationVectorHolder = new CipherInitializationVectorHolder();
+        cipherInitializationVectorHolder.setCipher(Base64.encode(originalCipher));
+        cipherInitializationVectorHolder.setInitializationVector(Base64.encode(iv));
+        String cipherWithMetadataStr = gson.toJson(cipherInitializationVectorHolder);
+
+        return cipherWithMetadataStr.getBytes(Charset.defaultCharset());
+    }
+
+    /**
+     * This method will extract the initialization vector and original ciphertext from input ciphertext and set them
+     * to metadata in CipherMetaDataHolder object.
+     *
+     * @param cipherTextBytes This input cipher text contains both original cipher and iv.
+     */
+    public void setIvAndOriginalCipherText(byte[] cipherTextBytes) {
+
+        Gson gson = new Gson();
+        String cipherStr = new String(cipherTextBytes, Charset.defaultCharset());
+        CipherInitializationVectorHolder cipherInitializationVectorHolder =
+                gson.fromJson(cipherStr, CipherInitializationVectorHolder.class);
+        setIv(cipherInitializationVectorHolder.getInitializationVector());
+        setCipherText(cipherInitializationVectorHolder.getCipher());
+    }
+
     @Override
     public String toString() {
         Gson gson = new Gson();
         return gson.toJson(this);
+    }
+
+    private class CipherInitializationVectorHolder{
+
+        private String cipher;
+
+        private String initializationVector;
+
+        public String getCipher() {
+
+            return cipher;
+        }
+
+        public void setCipher(String cipher) {
+
+            this.cipher = cipher;
+        }
+
+        public String getInitializationVector() {
+
+            return initializationVector;
+        }
+
+        public void setInitializationVector(String initializationVector) {
+
+            this.initializationVector = initializationVector;
+        }
+
     }
 }
 
