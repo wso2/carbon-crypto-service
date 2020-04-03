@@ -125,11 +125,6 @@
                 <version>${version.com.google.code.gson}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.uuid</groupId>
-                <artifactId>java-uuid-generator</artifactId>
-                <version>${version.com.fasterxml.uuid}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.carbon.commons</groupId>
                 <artifactId>org.wso2.carbon.uuid.generator</artifactId>
                 <version>${version.carbon.uuid.generator}</version>
