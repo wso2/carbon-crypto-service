@@ -259,6 +259,4 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
         return cipherMetaDataHolder;
     }
 
-
-
 }
