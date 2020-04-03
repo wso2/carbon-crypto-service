@@ -129,6 +129,11 @@
                 <artifactId>java-uuid-generator</artifactId>
                 <version>${version.com.fasterxml.uuid}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.commons</groupId>
+                <artifactId>org.wso2.carbon.uuid.generator</artifactId>
+                <version>${version.carbon.uuid.generator}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -270,7 +275,7 @@
         <orbit.version.axiom>1.2.11-wso2v16</orbit.version.axiom>
         <imp.pkg.version.axiom>[1.2.11,1.3.0)</imp.pkg.version.axiom>
 
-        <version.com.fasterxml.uuid>3.1.4</version.com.fasterxml.uuid>
+        <version.carbon.uuid.generator>4.7.25</version.carbon.uuid.generator>
 
     </properties>
 </project>

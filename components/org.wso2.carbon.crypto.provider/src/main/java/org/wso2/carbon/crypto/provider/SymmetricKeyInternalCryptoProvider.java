@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.crypto.provider;
 
-import com.fasterxml.uuid.Generators;
 import com.google.gson.Gson;
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.lang.StringUtils;
@@ -27,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.crypto.api.CipherMetaDataHolder;
 import org.wso2.carbon.crypto.api.CryptoException;
 import org.wso2.carbon.crypto.api.InternalCryptoProvider;
+import org.wso2.carbon.uuid.generator.UUIDGeneratorManager;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -172,7 +172,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
     private byte[] getInitializationVector() {
 
         byte[] iv = new byte[GCM_IV_LENGTH];
-        UUID timeBasedUUID = Generators.timeBasedGenerator().generate();
+        UUID timeBasedUUID = UUIDGeneratorManager.getTimeBasedUUIDGenerator().generate();
         ByteBuffer byteBuffer = ByteBuffer.wrap(iv);
         byteBuffer.putLong(timeBasedUUID.getMostSignificantBits());
         byteBuffer.putLong(timeBasedUUID.getLeastSignificantBits());
