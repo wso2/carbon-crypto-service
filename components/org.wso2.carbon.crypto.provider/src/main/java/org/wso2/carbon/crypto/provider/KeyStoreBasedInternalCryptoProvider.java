@@ -57,6 +57,7 @@ public class KeyStoreBasedInternalCryptoProvider implements InternalCryptoProvid
     private KeyStore keyStore;
     private String keyAlias;
     private String keyPassword;
+    private String encryptionAlgorithmConfiguredPerProvider;
 
     public KeyStoreBasedInternalCryptoProvider(KeyStore keyStore, String keyAlias, String keyPassword) {
 
@@ -132,7 +133,6 @@ public class KeyStoreBasedInternalCryptoProvider implements InternalCryptoProvid
 
         try {
             Cipher cipher;
-
             if (StringUtils.isBlank(algorithm)) {
                 algorithm = DEFAULT_ASSYMETRIC_CRYPTO_ALGORITHM;
             }
@@ -189,6 +189,36 @@ public class KeyStoreBasedInternalCryptoProvider implements InternalCryptoProvid
 
         }
         return encryptedKey;
+    }
+
+    @Override
+    public byte[] encrypt(byte[] cleartext, String javaSecurityAPIProvider,
+                          boolean returnSelfContainedCipherText) throws CryptoException {
+
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Encrypting data with algorithm '%s' defined for this provider.",
+                    encryptionAlgorithmConfiguredPerProvider));
+        }
+        return encrypt(cleartext, encryptionAlgorithmConfiguredPerProvider, javaSecurityAPIProvider,
+                returnSelfContainedCipherText);
+    }
+
+    @Override
+    public byte[] decrypt(byte[] ciphertext, String javaSecurityAPIProvider) throws CryptoException {
+
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Decrypting data with algorithm '%s' defined for this provider.",
+                    encryptionAlgorithmConfiguredPerProvider));
+        }
+        return decrypt(ciphertext, encryptionAlgorithmConfiguredPerProvider, javaSecurityAPIProvider);
+    }
+
+    @Override
+    public void setInternalCryptoProviderAlgorithm(String algorithm) {
+
+        log.debug(String.format("The internal crypto provider algorithm configured for '%s' is: '%s'",
+                this.getClass().getSimpleName(), algorithm));
+        this.encryptionAlgorithmConfiguredPerProvider = algorithm;
     }
 
     private Certificate getCertificateFromStore() throws KeyStoreException {

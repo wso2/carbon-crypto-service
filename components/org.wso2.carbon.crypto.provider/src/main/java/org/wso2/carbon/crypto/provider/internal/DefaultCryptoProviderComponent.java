@@ -31,7 +31,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.crypto.api.CryptoException;
-import org.wso2.carbon.crypto.api.ExternalCryptoProvider;
 import org.wso2.carbon.crypto.api.InternalCryptoProvider;
 import org.wso2.carbon.crypto.api.KeyResolver;
 import org.wso2.carbon.crypto.provider.ContextIndependentKeyResolver;
@@ -64,6 +63,10 @@ public class DefaultCryptoProviderComponent {
     private static final String INTERNAL_KEYSTORE_KEY_ALIAS_PROPERTY_PATH = "Security.InternalKeyStore.KeyAlias";
     private static final String INTERNAL_KEYSTORE_KEY_PASSWORD_PROPERTY_PATH = "Security.InternalKeyStore.KeyPassword";
     private static final String CRYPTO_SERVICE_ENABLING_PROPERTY_PATH = "CryptoService.Enabled";
+    private static final String INTERNAL_KEY_STORE_BASED_CRYPTO_PROVIDER_ALGORITHM_PATH = "CryptoService" +
+            ".InternalCryptoProviderAlgorithms.KeyStoreBasedInternalCryptoProviderAlgorithm";
+    private static final String INTERNAL_SYMMETRIC_KEY_CRYPTO_PROVIDER_ALGORITHM_PATH = "CryptoService" +
+            ".InternalCryptoProviderAlgorithms.SymmetricKeyInternalCryptoProvider";
 
     private ServiceRegistration<InternalCryptoProvider> defaultInternalCryptoProviderRegistration;
     private ServiceRegistration<InternalCryptoProvider> symmetricKeyInternalCryptoProviderRegistration;
@@ -139,6 +142,8 @@ public class DefaultCryptoProviderComponent {
     private SymmetricKeyInternalCryptoProvider getSymmetricKeyInternalCryptoProvider() throws CryptoException {
 
         String secret = serverConfigurationService.getFirstProperty(CRYPTO_SECRET_PROPERTY_PATH);
+        String encryptionAlgorithm =
+                serverConfigurationService.getFirstProperty(INTERNAL_SYMMETRIC_KEY_CRYPTO_PROVIDER_ALGORITHM_PATH);
 
         if (StringUtils.isBlank(secret)) {
 
@@ -152,7 +157,16 @@ public class DefaultCryptoProviderComponent {
             }
             return null;
         } else {
-            return new SymmetricKeyInternalCryptoProvider(secret);
+            SymmetricKeyInternalCryptoProvider symmetricKeyInternalCryptoProvider =
+                    new SymmetricKeyInternalCryptoProvider(secret);
+            if (StringUtils.isNotBlank(encryptionAlgorithm)) {
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("Set encryption algorithm for SymmetricKeyInternalCryptoProvider, from " +
+                            "server configuration at '%s'", INTERNAL_SYMMETRIC_KEY_CRYPTO_PROVIDER_ALGORITHM_PATH));
+                }
+                symmetricKeyInternalCryptoProvider.setInternalCryptoProviderAlgorithm(encryptionAlgorithm);
+            }
+            return symmetricKeyInternalCryptoProvider;
         }
     }
 
@@ -200,8 +214,19 @@ public class DefaultCryptoProviderComponent {
             KeyStore keyStore = getInternalKeyStore();
             String keyAlias = getKeyStoreConfigurationPropertyOrFail(INTERNAL_KEYSTORE_KEY_ALIAS_PROPERTY_PATH);
             String keyPassword = getKeyStoreConfigurationPropertyOrFail(INTERNAL_KEYSTORE_KEY_PASSWORD_PROPERTY_PATH);
-
-            return new KeyStoreBasedInternalCryptoProvider(keyStore, keyAlias, keyPassword);
+            String encryptionAlgorithm =
+                    serverConfigurationService
+                            .getFirstProperty(INTERNAL_KEY_STORE_BASED_CRYPTO_PROVIDER_ALGORITHM_PATH);
+            InternalCryptoProvider keyStoreBasedInternalCryptoProvider =
+                    new KeyStoreBasedInternalCryptoProvider(keyStore, keyAlias, keyPassword);
+            if (StringUtils.isNotBlank(encryptionAlgorithm)) {
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("Set encryption algorithm for KeyStoreBasedInternalCryptoProvider, from " +
+                            "server configuration at '%s'", INTERNAL_KEY_STORE_BASED_CRYPTO_PROVIDER_ALGORITHM_PATH));
+                }
+                keyStoreBasedInternalCryptoProvider.setInternalCryptoProviderAlgorithm(encryptionAlgorithm);
+            }
+            return keyStoreBasedInternalCryptoProvider;
         } catch (CertificateException | NoSuchAlgorithmException | IOException | KeyStoreException e) {
             String errorMessage = "An error occurred while loading the internal keystore using the configurations in " +
                     "'Security.InternalKeyStore' block.";

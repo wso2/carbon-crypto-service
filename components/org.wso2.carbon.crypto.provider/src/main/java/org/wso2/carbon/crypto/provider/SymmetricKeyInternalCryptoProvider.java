@@ -54,6 +54,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
     private static final String AES_GCM_SYMMETRIC_CRYPTO_ALGORITHM = "AES/GCM/NoPadding";
     public static final int GCM_IV_LENGTH = 16;
     public static final int GCM_TAG_LENGTH = 128;
+    private String encryptionAlgorithmConfiguredPerProvider;
 
     public SymmetricKeyInternalCryptoProvider(String secretKey) {
 
@@ -113,7 +114,6 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
 
         try {
             Cipher cipher;
-
             if (StringUtils.isBlank(algorithm)) {
                 algorithm = DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM;
             }
@@ -163,6 +163,38 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
 
     }
 
+    @Override
+    public byte[] encrypt(byte[] cleartext, String javaSecurityAPIProvider,
+                          boolean returnSelfContainedCipherText) throws CryptoException {
+
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Encrypting data with algorithm '%s' defined for this provider.",
+                    encryptionAlgorithmConfiguredPerProvider));
+        }
+        return encrypt(cleartext, encryptionAlgorithmConfiguredPerProvider, javaSecurityAPIProvider,
+                returnSelfContainedCipherText);
+    }
+
+    @Override
+    public byte[] decrypt(byte[] ciphertext, String javaSecurityAPIProvider) throws CryptoException {
+
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Decrypting data with algorithm '%s' defined for this provider.",
+                    encryptionAlgorithmConfiguredPerProvider));
+        }
+        return decrypt(ciphertext, encryptionAlgorithmConfiguredPerProvider, javaSecurityAPIProvider);
+    }
+
+    @Override
+    public void setInternalCryptoProviderAlgorithm(String algorithm) {
+
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("The internal crypto provider algorithm configured for '%s' is: '%s'",
+                    this.getClass().getSimpleName(), algorithm));
+        }
+        this.encryptionAlgorithmConfiguredPerProvider = algorithm;
+    }
+
     private SecretKeySpec getSecretKey() {
 
         return new SecretKeySpec(secretKey.getBytes(), 0, secretKey.getBytes().length,
@@ -180,7 +212,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
     }
 
     /**
-     * This method will encrypt a given plain text in AES/GCM/NoPadding cipher transformation
+     * This method will encryptWithInternalProviderType a given plain text in AES/GCM/NoPadding cipher transformation
      *
      * @param plaintext               plain text that need to be encrypted in this mode.
      * @param javaSecurityAPIProvider crypto provider

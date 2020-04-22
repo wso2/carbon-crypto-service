@@ -69,4 +69,48 @@ public interface InternalCryptoProvider {
         String errorMessage = "Encryption with self contained cipher text is not supported by this implementation.";
         throw new CryptoException(errorMessage);
     }
+
+    /**
+     * Computes and returns the cipher text of the given clear text. In this method api we do not pass the encryption
+     * algorithm from outside. The algorithm should be identified from internal provider level.
+     *
+     * @param cleartext                     The clear text to be encrypted.
+     * @param javaSecurityAPIProvider       The Java Security API provider.
+     * @param returnSelfContainedCipherText Whether cipher text need to be self contained.
+     * @return The cipher text
+     * @throws CryptoException
+     */
+    default byte[] encrypt(byte[] cleartext, String javaSecurityAPIProvider,
+                           boolean returnSelfContainedCipherText) throws CryptoException {
+
+        String errorMessage = "Encryption with self contained cipher text is not supported by this implementation.";
+        throw new CryptoException(errorMessage);
+    }
+
+    /**
+     * Computes and returns the clear text of the given cipher text. In this method api we do not pass the encryption
+     * algorithm from outside. The algorithm should be identified from internal provider level.
+     *
+     * @param ciphertext              The encrypted text.
+     * @param javaSecurityAPIProvider The Java Security API provider.
+     * @return The clear text.
+     * @throws CryptoException
+     */
+    default byte[] decrypt(byte[] ciphertext, String javaSecurityAPIProvider) throws CryptoException {
+
+        String errorMessage = "This method is not supported by this implementation.";
+        throw new CryptoException(errorMessage);
+    }
+
+    /**
+     * This method is used to set the encryption algorithm for the particular provider.
+     *
+     * @param algorithm encryption algorithm.
+     * @throws CryptoException
+     */
+    default void setInternalCryptoProviderAlgorithm(String algorithm) throws CryptoException {
+
+        String errorMessage = "This method is not supported by this implementation.";
+        throw new CryptoException(errorMessage);
+    }
 }

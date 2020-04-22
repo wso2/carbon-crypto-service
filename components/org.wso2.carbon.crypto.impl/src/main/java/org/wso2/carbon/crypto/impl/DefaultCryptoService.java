@@ -541,6 +541,77 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
 
     }
 
+    /**
+     * Computes and returns the ciphertext of the given cleartext using the given internal crypto provider.
+     *
+     * @param cleartext                     The cleartext to be encrypted.
+     * @param javaSecurityAPIProvider       The Java Security API provider.
+     * @param returnSelfContainedCipherText Whether cipher text need to be self contained.
+     * @param internalCryptoProviderType    preferred internal crypto provider
+     * @return encrypted data in a byte array.
+     * @throws CryptoException
+     */
+    @Override
+    public byte[] encryptWithInternalProviderType(byte[] cleartext, String javaSecurityAPIProvider,
+                                                  boolean returnSelfContainedCipherText,
+                                                  String internalCryptoProviderType)
+            throws CryptoException {
+
+        failIfInternalCryptoInputsAreNotValid(cleartext, internalCryptoProviderType);
+        if (log.isDebugEnabled()) {
+
+            log.debug(String.format("Encrypting data using internal crypto provider '%s'", internalCryptoProviderType));
+        }
+        if (areInternalCryptoProvidersAvailable()) {
+
+            InternalCryptoProvider mostSuitableInternalProvider =
+                    getMostSuitableInternalProvider(internalCryptoProviderType);
+
+            if (log.isDebugEnabled()) {
+
+                log.debug(String.format("Internal providers are available. The most suitable provider is '%s'",
+                        mostSuitableInternalProvider.getClass().getCanonicalName()));
+            }
+            return mostSuitableInternalProvider
+                    .encrypt(cleartext, javaSecurityAPIProvider, returnSelfContainedCipherText);
+
+        } else {
+            String errorMessage = String.format("No internal crypto providers available. Correctly register " +
+                    "a service implementation of '%s' as an OSGi service", InternalCryptoProvider.class);
+            throw new CryptoException(errorMessage);
+        }
+
+    }
+
+    public byte[] decryptWithInternalProviderType(byte[] ciphertext, String javaSecurityAPIProvider,
+                                                  String internalCryptoProviderType) throws CryptoException {
+
+        failIfInternalCryptoInputsAreNotValid(ciphertext, internalCryptoProviderType);
+
+        if (log.isDebugEnabled()) {
+
+            log.debug(String.format("Decrypting data using internal crypto provider '%s'", internalCryptoProviderType));
+        }
+
+        if (areInternalCryptoProvidersAvailable()) {
+
+            InternalCryptoProvider mostSuitableInternalProvider =
+                    getMostSuitableInternalProvider(internalCryptoProviderType);
+
+            if (log.isDebugEnabled()) {
+
+                log.debug(String.format("Internal providers are available. The most suitable provider is '%s'",
+                        mostSuitableInternalProvider.getClass().getCanonicalName()));
+            }
+
+            return mostSuitableInternalProvider.decrypt(ciphertext, javaSecurityAPIProvider);
+        } else {
+            String errorMessage = String.format("No internal crypto providers available. Correctly register " +
+                    "a service implementation of '%s' as an OSGi service", InternalCryptoProvider.class);
+            throw new CryptoException(errorMessage);
+        }
+    }
+
     // ------------ Management methods of the default crypto service starts here. --------------------
 
     /**
@@ -681,6 +752,36 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
         }
 
         return mostSuitableProvider;
+    }
+
+    /**
+     * Returns the most suitable {@link InternalCryptoProvider} for the operations, among the registered providers.
+     *
+     * @param internalCryptoProviderType preferred internal crypto provider.
+     * @return most suitable internal provider for the usecase.
+     * @throws CryptoException
+     */
+    public InternalCryptoProvider getMostSuitableInternalProvider(String internalCryptoProviderType)
+            throws CryptoException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("Looking for the most suitable internal crypto provider.");
+        }
+
+        if (StringUtils.isNotBlank(internalCryptoProviderType)) {
+
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Preferred internal crypto provider '%s' received from method api.",
+                        internalCryptoProviderType));
+            }
+            return internalCryptoProviders.get(internalCryptoProviderType);
+        }
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Preferred internal crypto provider is fetched from default provider " +
+                            "configurations.",
+                    internalCryptoProviderType));
+        }
+        return getMostSuitableInternalProvider();
     }
 
     /**
@@ -943,6 +1044,18 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
 
         if (StringUtils.isBlank(algorithm)) {
             throw new CryptoException("Algorithm can't be empty");
+        }
+    }
+
+    private void failIfInternalCryptoInputsAreNotValid(byte[] data, String internalCryptoProviderType)
+            throws CryptoException {
+
+        if (data == null) {
+            throw new CryptoException("Content provided can't be null");
+        }
+
+        if (StringUtils.isBlank(internalCryptoProviderType)) {
+            throw new CryptoException("Internal Crypto Provider type can't be empty");
         }
     }
 
