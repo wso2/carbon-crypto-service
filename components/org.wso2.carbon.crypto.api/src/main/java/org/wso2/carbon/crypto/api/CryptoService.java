@@ -176,7 +176,7 @@ public interface CryptoService {
      * @throws CryptoException If something unexpected happens during the encryption operation.
      */
     default byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider,
-                                                   boolean returnSelfContainedCipherText) throws CryptoException {
+                           boolean returnSelfContainedCipherText) throws CryptoException {
 
         String errorMessage = "Encryption with self contained cipher text is not supported by this implementation.";
         throw new CryptoException(errorMessage);
