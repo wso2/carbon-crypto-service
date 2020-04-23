@@ -157,10 +157,13 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
             log.debug(String.format("Encrypting data with symmetric key encryption with algorithm: '%s'.", algorithm));
         }
         if (AES_GCM_SYMMETRIC_CRYPTO_ALGORITHM.equals(algorithm)) {
-            return encryptWithGCMMode(cleartext, javaSecurityAPIProvider);
+            return encryptWithGCMMode(cleartext, javaSecurityAPIProvider, returnSelfContainedCipherText);
+        }
+        if (returnSelfContainedCipherText) {
+            byte[] cipherText = encrypt(cleartext, algorithm, javaSecurityAPIProvider);
+            return createSelfContainedCiphertextWithPlainAES(cipherText, algorithm);
         }
         return encrypt(cleartext, algorithm, javaSecurityAPIProvider);
-
     }
 
     private SecretKeySpec getSecretKey() {
@@ -182,16 +185,24 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
     /**
      * This method will encrypt a given plain text in AES/GCM/NoPadding cipher transformation
      *
-     * @param plaintext               plain text that need to be encrypted in this mode.
-     * @param javaSecurityAPIProvider crypto provider
+     * @param plaintext                     plain text that need to be encrypted in this mode.
+     * @param javaSecurityAPIProvider       crypto provider
+     * @param returnSelfContainedCipherText A boolean which denotes whether the cipher text should be in self
+     *                                      contained  mode or not.
      * @return byte array of encrypted and self contained cipher text, which include cipher text and iv value.
      * @throws CryptoException
      */
-    private byte[] encryptWithGCMMode(byte[] plaintext, String javaSecurityAPIProvider)
+    private byte[] encryptWithGCMMode(byte[] plaintext, String javaSecurityAPIProvider,
+                                      boolean returnSelfContainedCipherText)
             throws CryptoException {
 
         Cipher cipher;
         byte[] cipherText;
+        if (!returnSelfContainedCipherText) {
+            throw new CryptoException("Symmetric encryption with GCM mode only supports self contained cipher " +
+                    "text generation.");
+
+        }
         byte[] iv = getInitializationVector();
         try {
             if (StringUtils.isBlank(javaSecurityAPIProvider)) {
@@ -201,7 +212,8 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
             }
             cipher.init(Cipher.ENCRYPT_MODE, getSecretKey(), getGCMParameterSpec(iv));
             cipherText = cipher.doFinal(plaintext);
-            cipherText = createSelfContainedCiphertext(cipherText, AES_GCM_SYMMETRIC_CRYPTO_ALGORITHM, iv);
+
+            cipherText = createSelfContainedCiphertextWithGCMMode(cipherText, AES_GCM_SYMMETRIC_CRYPTO_ALGORITHM, iv);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException | NoSuchProviderException e) {
 
             String errorMessage = String.format("Error occurred while initializing and encrypting using Cipher object" +
@@ -231,13 +243,26 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
      * @return self contained byte array.
      * @throws NoSuchAlgorithmException
      */
-    private byte[] createSelfContainedCiphertext(byte[] originalCipher, String transformation, byte[] iv) {
+    private byte[] createSelfContainedCiphertextWithGCMMode(byte[] originalCipher, String transformation, byte[] iv) {
 
         Gson gson = new Gson();
         CipherMetaDataHolder cipherHolder = new CipherMetaDataHolder();
         cipherHolder.setCipherText(Base64.encode(cipherHolder.getSelfContainedCiphertextWithIv(originalCipher, iv)));
         cipherHolder.setTransformation(transformation);
         cipherHolder.setIv(Base64.encode(iv));
+        String cipherWithMetadataStr = gson.toJson(cipherHolder);
+        if (log.isDebugEnabled()) {
+            log.debug("Cipher with meta data : " + cipherWithMetadataStr);
+        }
+        return cipherWithMetadataStr.getBytes(Charset.defaultCharset());
+    }
+
+    private byte[] createSelfContainedCiphertextWithPlainAES(byte[] originalCipher, String transformation) {
+
+        Gson gson = new Gson();
+        CipherMetaDataHolder cipherHolder = new CipherMetaDataHolder();
+        cipherHolder.setCipherText(Base64.encode(originalCipher));
+        cipherHolder.setTransformation(transformation);
         String cipherWithMetadataStr = gson.toJson(cipherHolder);
         if (log.isDebugEnabled()) {
             log.debug("Cipher with meta data : " + cipherWithMetadataStr);
