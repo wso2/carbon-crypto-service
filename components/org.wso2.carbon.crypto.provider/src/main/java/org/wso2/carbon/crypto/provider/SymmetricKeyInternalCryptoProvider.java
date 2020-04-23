@@ -212,7 +212,6 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
             }
             cipher.init(Cipher.ENCRYPT_MODE, getSecretKey(), getGCMParameterSpec(iv));
             cipherText = cipher.doFinal(plaintext);
-
             cipherText = createSelfContainedCiphertextWithGCMMode(cipherText, AES_GCM_SYMMETRIC_CRYPTO_ALGORITHM, iv);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException | NoSuchProviderException e) {
 
