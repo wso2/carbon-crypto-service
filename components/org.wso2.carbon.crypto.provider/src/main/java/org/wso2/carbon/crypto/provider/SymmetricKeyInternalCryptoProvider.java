@@ -264,7 +264,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
         cipherHolder.setTransformation(transformation);
         String cipherWithMetadataStr = gson.toJson(cipherHolder);
         if (log.isDebugEnabled()) {
-            log.debug("Cipher with meta data : " + cipherWithMetadataStr);
+            log.debug("Cipher with meta data: " + cipherWithMetadataStr);
         }
         return cipherWithMetadataStr.getBytes(Charset.defaultCharset());
     }
