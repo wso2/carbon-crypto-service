@@ -549,7 +549,6 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
         failIfInternalCryptoInputsAreNotValid(cleartext, algorithm, internalCryptoProviderType,
                 "'Internal Encryption'");
         if (log.isDebugEnabled()) {
-
             log.debug(String.format("Encrypting data using internal crypto provider '%s'", internalCryptoProviderType));
         }
         if (areInternalCryptoProvidersAvailable()) {
