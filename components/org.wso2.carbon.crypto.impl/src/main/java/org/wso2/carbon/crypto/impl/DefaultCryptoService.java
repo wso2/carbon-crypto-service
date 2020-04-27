@@ -1099,8 +1099,9 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
         if (StringUtils.isNotBlank(internalCryptoProviderType)) {
 
             if (log.isDebugEnabled()) {
-                log.debug(String.format("Preferred internal crypto provider '%s' received from method api.",
-                        internalCryptoProviderType));
+                log.debug(
+                        String.format("Preferred internal crypto provider received from registered providers is '%s'.",
+                                internalCryptoProviderType));
             }
             return internalCryptoProviders.get(internalCryptoProviderType);
         }
