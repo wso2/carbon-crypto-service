@@ -19,6 +19,7 @@
 package org.wso2.carbon.crypto.provider;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -244,7 +245,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
      */
     private byte[] createSelfContainedCiphertextWithGCMMode(byte[] originalCipher, String transformation, byte[] iv) {
 
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         CipherMetaDataHolder cipherHolder = new CipherMetaDataHolder();
         cipherHolder.setCipherText(Base64.encode(cipherHolder.getSelfContainedCiphertextWithIv(originalCipher, iv)));
         cipherHolder.setTransformation(transformation);
@@ -258,7 +259,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
 
     private byte[] createSelfContainedCiphertextWithPlainAES(byte[] originalCipher, String transformation) {
 
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         CipherMetaDataHolder cipherHolder = new CipherMetaDataHolder();
         cipherHolder.setCipherText(Base64.encode(originalCipher));
         cipherHolder.setTransformation(transformation);

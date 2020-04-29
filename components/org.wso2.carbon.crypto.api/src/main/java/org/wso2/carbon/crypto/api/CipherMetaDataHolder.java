@@ -18,6 +18,7 @@
 package org.wso2.carbon.crypto.api;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.axiom.om.util.Base64;
 
 import java.nio.charset.Charset;
@@ -129,7 +130,7 @@ public class CipherMetaDataHolder {
 
     public byte[] getSelfContainedCiphertextWithIv(byte[] originalCipher, byte[] iv) {
 
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();;
         CipherInitializationVectorHolder cipherInitializationVectorHolder = new CipherInitializationVectorHolder();
         cipherInitializationVectorHolder.setCipher(Base64.encode(originalCipher));
         cipherInitializationVectorHolder.setInitializationVector(Base64.encode(iv));
@@ -146,7 +147,7 @@ public class CipherMetaDataHolder {
      */
     public void setIvAndOriginalCipherText(byte[] cipherTextBytes) {
 
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();;
         String cipherStr = new String(cipherTextBytes, Charset.defaultCharset());
         CipherInitializationVectorHolder cipherInitializationVectorHolder =
                 gson.fromJson(cipherStr, CipherInitializationVectorHolder.class);
