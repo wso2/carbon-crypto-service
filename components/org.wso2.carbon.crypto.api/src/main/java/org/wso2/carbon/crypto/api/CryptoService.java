@@ -181,4 +181,46 @@ public interface CryptoService {
         String errorMessage = "Encryption with self contained cipher text is not supported by this implementation.";
         throw new CryptoException(errorMessage);
     }
+
+    /**
+     * Computes and returns the cipher text of the given cleartext.
+     * In this method api, we can pass the internalCryptoProviderType and get the clear text encrypted using the
+     * preferred internal crypto provider.
+     *
+     * @param cleartext                     The cleartext to be encrypted.
+     * @param algorithm                     The encryption algorithm.
+     * @param javaSecurityAPIProvider       The Java Security API provider.
+     * @param returnSelfContainedCipherText Whether cipher text need to be self contained.
+     * @param internalCryptoProviderType    Preferred internal crypto provider.
+     * @return The ciphertext
+     * @throws CryptoException If something unexpected happens during the encryption operation.
+     */
+    default byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider,
+                                               boolean returnSelfContainedCipherText, String internalCryptoProviderType)
+            throws CryptoException {
+
+        String errorMessage =
+                "Encryption with providing internal crypto provider type is not supported by this implementation.";
+        throw new CryptoException(errorMessage);
+    }
+
+    /**
+     * Computes and returns the plain text of a given cipher text.
+     * In this method api, we can pass the internalCryptoProviderType and get the cipher text decrypted using the
+     * preferred internal crypto provider.
+     *
+     * @param ciphertext                 The encrypted text.
+     * @param algorithm                  The encryption algorithm.
+     * @param javaSecurityAPIProvider    The Java Security API provider.
+     * @param internalCryptoProviderType Preferred internal crypto provider.
+     * @return TThe clear text in byte array format.
+     * @throws CryptoException
+     */
+    default byte[] decrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider,
+                           String internalCryptoProviderType) throws CryptoException {
+
+        String errorMessage = "decryption with providing internal crypto provider type is not supported by this " +
+                "implementation.";
+        throw new CryptoException(errorMessage);
+    }
 }
