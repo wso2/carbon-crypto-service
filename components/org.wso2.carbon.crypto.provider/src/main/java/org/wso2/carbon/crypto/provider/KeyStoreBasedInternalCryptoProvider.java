@@ -168,7 +168,15 @@ public class KeyStoreBasedInternalCryptoProvider implements InternalCryptoProvid
     public byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider,
                           boolean returnSelfContainedCipherText) throws CryptoException {
 
-        byte[] encryptedKey = encrypt(cleartext, algorithm, javaSecurityAPIProvider);
+        byte[] encryptedKey;
+        if (StringUtils.isNotBlank(algorithm) && cleartext.length == 0) {
+            if (log.isDebugEnabled()) {
+                log.debug("Plaintext is empty. An empty array will be used as the ciphertext bytes.");
+            }
+            encryptedKey = StringUtils.EMPTY.getBytes();
+        } else {
+            encryptedKey = encrypt(cleartext, algorithm, javaSecurityAPIProvider);
+        }
         if (returnSelfContainedCipherText) {
             Certificate certificate = null;
             try {
