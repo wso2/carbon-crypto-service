@@ -157,6 +157,9 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
             log.debug(String.format("Encrypting data with symmetric key encryption with algorithm: '%s'.", algorithm));
         }
         byte[] cipherText;
+        if (cleartext == null) {
+            throw new CryptoException("Plaintext can't be null.");
+        }
         if (AES_GCM_SYMMETRIC_CRYPTO_ALGORITHM.equals(algorithm)) {
             return encryptWithGCMMode(cleartext, javaSecurityAPIProvider, returnSelfContainedCipherText);
         }

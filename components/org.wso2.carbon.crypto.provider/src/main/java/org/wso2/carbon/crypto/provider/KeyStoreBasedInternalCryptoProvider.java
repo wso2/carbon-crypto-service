@@ -169,6 +169,9 @@ public class KeyStoreBasedInternalCryptoProvider implements InternalCryptoProvid
                           boolean returnSelfContainedCipherText) throws CryptoException {
 
         byte[] encryptedKey;
+        if (cleartext == null) {
+            throw new CryptoException("Plaintext can't be null.");
+        }
         if (StringUtils.isNotBlank(algorithm) && cleartext.length == 0) {
             if (log.isDebugEnabled()) {
                 log.debug("Plaintext is empty. An empty array will be used as the ciphertext bytes.");
