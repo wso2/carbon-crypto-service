@@ -129,7 +129,11 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
                 CipherMetaDataHolder cipherMetaDataHolder = getCipherMetaDataHolderFromCipherText(ciphertext);
                 cipher.init(Cipher.DECRYPT_MODE, getSecretKey(),
                         getGCMParameterSpec(cipherMetaDataHolder.getIvBase64Decoded()));
-                return cipher.doFinal(cipherMetaDataHolder.getCipherBase64Decoded());
+                if (cipherMetaDataHolder.getCipherBase64Decoded().length == 0) {
+                    return StringUtils.EMPTY.getBytes();
+                } else {
+                    return cipher.doFinal(cipherMetaDataHolder.getCipherBase64Decoded());
+                }
 
             } else {
                 cipher.init(Cipher.DECRYPT_MODE, getSecretKey());
