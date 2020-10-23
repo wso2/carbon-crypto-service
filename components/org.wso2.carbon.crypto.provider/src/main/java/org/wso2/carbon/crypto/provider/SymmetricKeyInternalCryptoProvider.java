@@ -76,7 +76,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
         try {
             Cipher cipher;
             if (StringUtils.isBlank(algorithm)) {
-                algorithm = DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM;
+                algorithm = AES_GCM_SYMMETRIC_CRYPTO_ALGORITHM;
             }
             if (StringUtils.isBlank(javaSecurityAPIProvider)) {
                 cipher = Cipher.getInstance(algorithm);
@@ -115,7 +115,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
             Cipher cipher;
 
             if (StringUtils.isBlank(algorithm)) {
-                algorithm = DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM;
+                algorithm = AES_GCM_SYMMETRIC_CRYPTO_ALGORITHM;
             }
             if (StringUtils.isBlank(javaSecurityAPIProvider)) {
                 cipher = Cipher.getInstance(algorithm);
