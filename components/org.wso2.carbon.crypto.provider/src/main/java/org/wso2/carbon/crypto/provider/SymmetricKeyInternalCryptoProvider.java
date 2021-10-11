@@ -53,7 +53,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
     private String secretKey;
     private static final String DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM = "AES";
     private static final String AES_GCM_SYMMETRIC_CRYPTO_ALGORITHM = "AES/GCM/NoPadding";
-    public static final int GCM_IV_LENGTH = 16;
+    public static final int GCM_IV_LENGTH = 128;
     public static final int GCM_TAG_LENGTH = 128;
 
     public SymmetricKeyInternalCryptoProvider(String secretKey) {
