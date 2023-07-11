@@ -71,7 +71,7 @@ public class KeyStoreBasedInternalCryptoProvider implements InternalCryptoProvid
      * @param cleartext               The cleartext to be encrypted.
      * @param algorithm               The encryption / decryption algorithm
      * @param javaSecurityAPIProvider
-     * @param params
+     * @param params                 The parameters required for the encryption operation.
      * @return the ciphertext
      * @throws CryptoException
      */
@@ -126,7 +126,7 @@ public class KeyStoreBasedInternalCryptoProvider implements InternalCryptoProvid
      * @param ciphertext              The ciphertext to be decrypted.
      * @param algorithm               The encryption / decryption algorithm
      * @param javaSecurityAPIProvider
-     * @param params
+     * @param params                  The parameters required for the decryption operation.
      * @return The cleartext
      * @throws CryptoException If something unexpected happens during the decryption operation.
      */

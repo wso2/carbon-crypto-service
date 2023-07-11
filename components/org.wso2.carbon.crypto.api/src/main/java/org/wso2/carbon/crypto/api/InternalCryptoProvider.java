@@ -37,7 +37,7 @@ public interface InternalCryptoProvider {
      * @param cleartext               The cleartext to be encrypted.
      * @param algorithm               The encryption / decryption algorithm
      * @param javaSecurityAPIProvider
-     * @param params
+     * @param params                  The parameters required for the encryption operation.
      * @return The ciphertext
      * @throws CryptoException If something unexpected happens during the encryption operation.
      */
@@ -49,7 +49,7 @@ public interface InternalCryptoProvider {
      * @param ciphertext              The ciphertext to be decrypted.
      * @param algorithm               The encryption / decryption algorithm
      * @param javaSecurityAPIProvider
-     * @param params
+     * @param params                  The parameters required for the decryption operation.
      * @return The cleartext
      * @throws CryptoException If something unexpected happens during the decryption operation.
      */
