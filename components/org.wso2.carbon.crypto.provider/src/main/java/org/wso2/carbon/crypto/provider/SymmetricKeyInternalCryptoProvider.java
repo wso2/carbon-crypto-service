@@ -67,11 +67,19 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
      * @param cleartext               The cleartext to be encrypted.
      * @param algorithm               The encryption / decryption algorithm
      * @param javaSecurityAPIProvider
+     * @param params                  The parameters required for the encryption operation.
      * @return the ciphertext
      * @throws CryptoException
      */
     @Override
-    public byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider) throws CryptoException {
+    public byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider, Object... params)
+            throws CryptoException {
+
+        // Use custom secret key if provided.
+        String customSecretKey = "";
+        if (params != null && params.length > 0) {
+            customSecretKey = (String) params[0];
+        }
 
         try {
             Cipher cipher;
@@ -84,7 +92,11 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
                 cipher = Cipher.getInstance(algorithm, javaSecurityAPIProvider);
             }
 
-            cipher.init(Cipher.ENCRYPT_MODE, getSecretKey());
+            if (StringUtils.isNotBlank(customSecretKey)) {
+                cipher.init(Cipher.ENCRYPT_MODE,getSecretKey(customSecretKey));
+            } else {
+                cipher.init(Cipher.ENCRYPT_MODE, getSecretKey());
+            }
             return cipher.doFinal(cleartext);
         } catch (InvalidKeyException | NoSuchPaddingException | BadPaddingException | NoSuchProviderException
                 | IllegalBlockSizeException | NoSuchAlgorithmException e) {
@@ -106,10 +118,18 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
      * @param ciphertext              The ciphertext to be decrypted.
      * @param algorithm               The encryption / decryption algorithm
      * @param javaSecurityAPIProvider
+     * @param params                  The parameters required for the decryption operation.
      * @return The cleartext
      * @throws CryptoException If something unexpected happens during the decryption operation.
      */
-    public byte[] decrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider) throws CryptoException {
+    public byte[] decrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider, Object... params)
+            throws CryptoException {
+
+        // Use custom secret key if provided.
+        String customSecretKey = "";
+        if (params != null && params.length > 0) {
+            customSecretKey = (String) params[0];
+        }
 
         try {
             Cipher cipher;
@@ -122,12 +142,16 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
             } else {
                 cipher = Cipher.getInstance(algorithm, javaSecurityAPIProvider);
             }
+            SecretKeySpec secretKeySpec = getSecretKey();
+            if (StringUtils.isNotBlank(customSecretKey)) {
+                secretKeySpec = getSecretKey(customSecretKey);
+            }
             if (AES_GCM_SYMMETRIC_CRYPTO_ALGORITHM.equals(algorithm)) {
                 if (log.isDebugEnabled()) {
                     log.debug(String.format("Decrypting internal data with '%s' algorithm.", algorithm));
                 }
                 CipherMetaDataHolder cipherMetaDataHolder = getCipherMetaDataHolderFromCipherText(ciphertext);
-                cipher.init(Cipher.DECRYPT_MODE, getSecretKey(),
+                cipher.init(Cipher.DECRYPT_MODE, secretKeySpec,
                         getGCMParameterSpec(cipherMetaDataHolder.getIvBase64Decoded()));
                 if (cipherMetaDataHolder.getCipherBase64Decoded().length == 0) {
                     return StringUtils.EMPTY.getBytes();
@@ -136,7 +160,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
                 }
 
             } else {
-                cipher.init(Cipher.DECRYPT_MODE, getSecretKey());
+                cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
             }
 
             return cipher.doFinal(ciphertext);
@@ -147,6 +171,11 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
             // Log the exception from client libraries, to avoid missing information if callers code doesn't log it
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
+            }
+
+            // This is for backward compatible to use the default key.
+            if (e instanceof InvalidKeyException && StringUtils.isNotBlank(secretKey)) {
+                return decrypt(ciphertext, algorithm, javaSecurityAPIProvider);
             }
 
             throw new CryptoException(errorMessage, e);
@@ -188,6 +217,12 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
     private SecretKeySpec getSecretKey() {
 
         return new SecretKeySpec(secretKey.getBytes(), 0, secretKey.getBytes().length,
+                DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM);
+    }
+
+    private SecretKeySpec getSecretKey(String customSecretKey) {
+
+        return new SecretKeySpec(customSecretKey.getBytes(), 0, customSecretKey.getBytes().length,
                 DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM);
     }
 

@@ -37,10 +37,11 @@ public interface InternalCryptoProvider {
      * @param cleartext               The cleartext to be encrypted.
      * @param algorithm               The encryption / decryption algorithm
      * @param javaSecurityAPIProvider
+     * @param params
      * @return The ciphertext
      * @throws CryptoException If something unexpected happens during the encryption operation.
      */
-    byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider) throws CryptoException;
+    byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider, Object... params) throws CryptoException;
 
     /**
      * Computes and returns the cleartext of the given ciphertext.
@@ -48,10 +49,11 @@ public interface InternalCryptoProvider {
      * @param ciphertext              The ciphertext to be decrypted.
      * @param algorithm               The encryption / decryption algorithm
      * @param javaSecurityAPIProvider
+     * @param params
      * @return The cleartext
      * @throws CryptoException If something unexpected happens during the decryption operation.
      */
-    byte[] decrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider) throws CryptoException;
+    byte[] decrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider, Object... params) throws CryptoException;
 
     /**
      * Computes and returns the ciphertext of the given cleartext.

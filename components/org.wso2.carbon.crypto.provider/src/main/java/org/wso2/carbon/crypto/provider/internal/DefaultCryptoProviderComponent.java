@@ -57,7 +57,6 @@ import java.security.cert.CertificateException;
 public class DefaultCryptoProviderComponent {
 
     public static final String CRYPTO_SECRET_PROPERTY_PATH = "CryptoService.Secret";
-    public static final String CRYPTO_TOTP_SECRET_PROPERTY_PATH = "CryptoService.TotpSecret";
     private final static Log log = LogFactory.getLog(DefaultCryptoProviderComponent.class);
     private static final String INTERNAL_KEYSTORE_FILE_PROPERTY_PATH = "Security.InternalKeyStore.Location";
     private static final String INTERNAL_KEYSTORE_TYPE_PROPERTY_PATH = "Security.InternalKeyStore.Type";
@@ -139,10 +138,7 @@ public class DefaultCryptoProviderComponent {
 
     private SymmetricKeyInternalCryptoProvider getSymmetricKeyInternalCryptoProvider() throws CryptoException {
 
-        String secret = StringUtils.isNotBlank(serverConfigurationService
-                .getFirstProperty(CRYPTO_TOTP_SECRET_PROPERTY_PATH))
-                ? serverConfigurationService.getFirstProperty(CRYPTO_TOTP_SECRET_PROPERTY_PATH)
-                : serverConfigurationService.getFirstProperty(CRYPTO_SECRET_PROPERTY_PATH);
+        String secret = serverConfigurationService.getFirstProperty(CRYPTO_SECRET_PROPERTY_PATH);
 
         if (StringUtils.isBlank(secret)) {
 

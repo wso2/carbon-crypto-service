@@ -27,13 +27,13 @@ import org.wso2.carbon.crypto.api.InternalCryptoProvider;
 public class SimpleCryptoProvider implements InternalCryptoProvider {
 
     @Override
-    public byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider) throws CryptoException {
+    public byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider, Object... params) throws CryptoException {
 
         return new byte[0];
     }
 
     @Override
-    public byte[] decrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider) throws CryptoException {
+    public byte[] decrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider, Object... params) throws CryptoException {
 
         return new byte[0];
     }
