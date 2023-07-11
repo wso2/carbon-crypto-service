@@ -27,7 +27,7 @@ import org.wso2.carbon.crypto.api.InternalCryptoProvider;
 public class SimpleCryptoProvider implements InternalCryptoProvider {
 
     @Override
-    public byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider, Object... params) throws CryptoException {
+    public byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider) throws CryptoException {
 
         return new byte[0];
     }

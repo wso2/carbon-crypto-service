@@ -71,12 +71,11 @@ public class KeyStoreBasedInternalCryptoProvider implements InternalCryptoProvid
      * @param cleartext               The cleartext to be encrypted.
      * @param algorithm               The encryption / decryption algorithm
      * @param javaSecurityAPIProvider
-     * @param params                 The parameters required for the encryption operation.
      * @return the ciphertext
      * @throws CryptoException
      */
     @Override
-    public byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider, Object... params) throws CryptoException {
+    public byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider) throws CryptoException {
 
         try {
             Cipher cipher;
