@@ -33,7 +33,7 @@ public class SimpleCryptoProvider implements InternalCryptoProvider {
     }
 
     @Override
-    public byte[] decrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider, Object... params) throws CryptoException {
+    public byte[] decrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider) throws CryptoException {
 
         return new byte[0];
     }

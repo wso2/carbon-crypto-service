@@ -48,11 +48,10 @@ public interface InternalCryptoProvider {
      * @param ciphertext              The ciphertext to be decrypted.
      * @param algorithm               The encryption / decryption algorithm
      * @param javaSecurityAPIProvider
-     * @param params                  The parameters required for the decryption operation.
      * @return The cleartext
      * @throws CryptoException If something unexpected happens during the decryption operation.
      */
-    byte[] decrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider, Object... params) throws CryptoException;
+    byte[] decrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider) throws CryptoException;
 
     /**
      * Computes and returns the ciphertext of the given cleartext.
@@ -85,6 +84,22 @@ public interface InternalCryptoProvider {
                            boolean returnSelfContainedCipherText, Object... params) throws CryptoException {
 
         String errorMessage = "Encryption with custom key is not supported by this implementation.";
+        throw new CryptoException(errorMessage);
+    }
+
+    /**
+     * Computes and returns the cleartext of the given ciphertext.
+     *
+     * @param ciphertext                The ciphertext to be decrypted.
+     * @param algorithm                 The encryption / decryption algorithm
+     * @param javaSecurityAPIProvider   The Java Security API provider.
+     * @return The cleartext
+     * @throws CryptoException If something unexpected happens during the decryption operation.
+     */
+    default byte[] decrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider, Object... params)
+            throws CryptoException {
+
+        String errorMessage = "Decryption with custom key is not supported by this implementation.";
         throw new CryptoException(errorMessage);
     }
 }

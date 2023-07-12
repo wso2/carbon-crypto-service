@@ -125,11 +125,10 @@ public class KeyStoreBasedInternalCryptoProvider implements InternalCryptoProvid
      * @param ciphertext              The ciphertext to be decrypted.
      * @param algorithm               The encryption / decryption algorithm
      * @param javaSecurityAPIProvider
-     * @param params                  The parameters required for the decryption operation.
      * @return The cleartext
      * @throws CryptoException If something unexpected happens during the decryption operation.
      */
-    public byte[] decrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider, Object... params) throws CryptoException {
+    public byte[] decrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider) throws CryptoException {
 
         try {
             Cipher cipher;

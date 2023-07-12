@@ -223,4 +223,23 @@ public interface CryptoService {
                 "implementation.";
         throw new CryptoException(errorMessage);
     }
+
+    /**
+     * Computes and returns the plain text of a given cipher text.
+     * If using assymetric encryption and the cipher text is a self contained cipher text, the cipher text will be
+     * decrypted using the private key of the current entity.
+     *
+     * @param ciphertext              The encrypted text.
+     * @param algorithm               The encryption algorithm.
+     * @param javaSecurityAPIProvider The Java Security API provider.
+     * @return The clear text in byte array format.
+     * @throws CryptoException
+     */
+    default byte[] customDecrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider,
+                                 Object... params) throws CryptoException {
+
+        String errorMessage = "decryption with providing custom values is not supported by this " +
+                "implementation.";
+        throw new CryptoException(errorMessage);
+    }
 }
