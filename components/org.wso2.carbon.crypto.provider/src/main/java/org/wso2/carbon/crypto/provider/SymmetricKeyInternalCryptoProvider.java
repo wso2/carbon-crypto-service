@@ -71,8 +71,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
      * @throws CryptoException
      */
     @Override
-    public byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider)
-            throws CryptoException {
+    public byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider) throws CryptoException {
 
         try {
             Cipher cipher;
@@ -110,8 +109,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
      * @return The cleartext
      * @throws CryptoException If something unexpected happens during the decryption operation.
      */
-    public byte[] decrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider)
-            throws CryptoException {
+    public byte[] decrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider) throws CryptoException {
 
         try {
             Cipher cipher;
@@ -149,11 +147,6 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
             // Log the exception from client libraries, to avoid missing information if callers code doesn't log it
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
-            }
-
-            // This is for backward compatible to use the default key.
-            if (e instanceof InvalidKeyException && StringUtils.isNotBlank(secretKey)) {
-                return decrypt(ciphertext, algorithm, javaSecurityAPIProvider);
             }
 
             throw new CryptoException(errorMessage, e);
@@ -273,22 +266,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
         if (AES_GCM_SYMMETRIC_CRYPTO_ALGORITHM.equals(algorithm)) {
             return encryptWithGCMMode(cleartext, javaSecurityAPIProvider, returnSelfContainedCipherText, params);
         }
-        if (StringUtils.isNotBlank(algorithm) && cleartext.length == 0) {
-            if (log.isDebugEnabled()) {
-                log.debug("Plaintext is empty. An empty array will be used as the ciphertext bytes.");
-            }
-            cipherText = StringUtils.EMPTY.getBytes();
-            if (returnSelfContainedCipherText) {
-                return createSelfContainedCiphertextWithPlainAES(cipherText, algorithm);
-            } else {
-                return cipherText;
-            }
-        }
-        if (returnSelfContainedCipherText) {
-            cipherText = encrypt(cleartext, algorithm, javaSecurityAPIProvider);
-            return createSelfContainedCiphertextWithPlainAES(cipherText, algorithm);
-        }
-        return encrypt(cleartext, algorithm, javaSecurityAPIProvider);
+        return encrypt(cleartext, algorithm, javaSecurityAPIProvider, returnSelfContainedCipherText);
     }
 
     private SecretKeySpec getSecretKey() {
@@ -297,6 +275,11 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
                 DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM);
     }
 
+    /**
+     * This method will get the secret key spec from the given custom secret key.
+     * @param customSecretKey   custom secret key.
+     * @return  secret key spec.
+     */
     private SecretKeySpec getSecretKey(String customSecretKey) {
 
         return new SecretKeySpec(customSecretKey.getBytes(), 0, customSecretKey.getBytes().length,
