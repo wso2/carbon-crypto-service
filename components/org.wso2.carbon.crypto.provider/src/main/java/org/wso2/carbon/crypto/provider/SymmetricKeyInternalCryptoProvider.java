@@ -208,8 +208,8 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
-            if (e instanceof InvalidKeyException && retry) {
-                decrypt(ciphertext, algorithm, javaSecurityAPIProvider);
+            if (e instanceof BadPaddingException && retry) {
+                return decrypt(ciphertext, algorithm, javaSecurityAPIProvider);
             }
 
             throw new CryptoException(errorMessage, e);
