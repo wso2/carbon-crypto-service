@@ -242,4 +242,26 @@ public interface CryptoService {
                 "implementation.";
         throw new CryptoException(errorMessage);
     }
+
+    /**
+     * Computes and returns the ciphertext of the given cleartext.
+     * If using assymetric encryption and returnSelfContainedCipherText is true, the cipher text will be a self
+     * contained cipher text.
+     * The encrypted data is only for internal usage (e.g. encrypting passwords before persisting),
+     * therefore the ciphertext is <b>NOT</b> supposed to be shared with other systems.
+     *
+     * @param cleartext                     The cleartext to be encrypted.
+     * @param algorithm                     The encryption / decryption algorithm
+     * @param javaSecurityAPIProvider       The Java Security API provider.
+     * @param returnSelfContainedCipherText Whether cipher text need to be self contained.
+     * @param params                        Custom parameters required for encryption.
+     * @return The ciphertext
+     * @throws CryptoException If something unexpected happens during the encryption operation.
+     */
+    default byte[] customEncrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider,
+                           boolean returnSelfContainedCipherText, Object... params) throws CryptoException {
+
+        String errorMessage = "Encryption with self contained cipher text is not supported by this implementation.";
+        throw new CryptoException(errorMessage);
+    }
 }
