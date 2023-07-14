@@ -69,4 +69,38 @@ public interface InternalCryptoProvider {
         String errorMessage = "Encryption with self contained cipher text is not supported by this implementation.";
         throw new CryptoException(errorMessage);
     }
+
+    /**
+     * Computes and returns the ciphertext of the given cleartext.
+     * @param cleartext                     The cleartext to be encrypted.
+     * @param algorithm                     The encryption / decryption algorithm
+     * @param javaSecurityAPIProvider       The Java Security API provider.
+     * @param returnSelfContainedCipherText Whether cipher text need to be self contained.
+     * @param params                        The parameters required for the encryption operation.
+     * @return The ciphertext
+     * @throws CryptoException If something unexpected happens during the encryption operation.
+     */
+    default byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider,
+                           boolean returnSelfContainedCipherText, Object... params) throws CryptoException {
+
+        String errorMessage = "Encryption with custom key is not supported by this implementation.";
+        throw new CryptoException(errorMessage);
+    }
+
+    /**
+     * Computes and returns the cleartext of the given ciphertext.
+     *
+     * @param ciphertext                The ciphertext to be decrypted.
+     * @param algorithm                 The encryption / decryption algorithm
+     * @param javaSecurityAPIProvider   The Java Security API provider.
+     * @param params                    The parameters required for the decryption operation.
+     * @return The cleartext
+     * @throws CryptoException If something unexpected happens during the decryption operation.
+     */
+    default byte[] decrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider, Object... params)
+            throws CryptoException {
+
+        String errorMessage = "Decryption with custom key is not supported by this implementation.";
+        throw new CryptoException(errorMessage);
+    }
 }

@@ -223,4 +223,46 @@ public interface CryptoService {
                 "implementation.";
         throw new CryptoException(errorMessage);
     }
+
+    /**
+     * Computes and returns the plain text of a given cipher text.
+     * If using assymetric encryption and the cipher text is a self contained cipher text, the cipher text will be
+     * decrypted using the private key of the current entity.
+     *
+     * @param ciphertext              The encrypted text.
+     * @param algorithm               The encryption algorithm.
+     * @param javaSecurityAPIProvider The Java Security API provider.
+     * @param params                  Additional parameters required for decryption.
+     * @return The clear text in byte array format.
+     * @throws CryptoException
+     */
+    default byte[] customDecrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider,
+                                 Object... params) throws CryptoException {
+
+        String errorMessage = "decryption with providing custom values is not supported by this " +
+                "implementation.";
+        throw new CryptoException(errorMessage);
+    }
+
+    /**
+     * Computes and returns the ciphertext of the given cleartext.
+     * If using assymetric encryption and returnSelfContainedCipherText is true, the cipher text will be a self
+     * contained cipher text.
+     * The encrypted data is only for internal usage (e.g. encrypting passwords before persisting),
+     * therefore the ciphertext is <b>NOT</b> supposed to be shared with other systems.
+     *
+     * @param cleartext                     The cleartext to be encrypted.
+     * @param algorithm                     The encryption / decryption algorithm
+     * @param javaSecurityAPIProvider       The Java Security API provider.
+     * @param returnSelfContainedCipherText Whether cipher text need to be self contained.
+     * @param params                        Custom parameters required for encryption.
+     * @return The ciphertext
+     * @throws CryptoException If something unexpected happens during the encryption operation.
+     */
+    default byte[] customEncrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider,
+                           boolean returnSelfContainedCipherText, Object... params) throws CryptoException {
+
+        String errorMessage = "Encryption with self contained cipher text is not supported by this implementation.";
+        throw new CryptoException(errorMessage);
+    }
 }

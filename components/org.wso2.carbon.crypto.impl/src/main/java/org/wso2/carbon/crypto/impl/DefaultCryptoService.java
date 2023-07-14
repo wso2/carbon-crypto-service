@@ -602,6 +602,72 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
         }
     }
 
+    @Override
+    public byte[] customDecrypt(byte[] ciphertext, String algorithm, String javaSecurityAPIProvider,
+                          Object... params) throws CryptoException {
+
+        if (params == null || params.length < 1 || params[0] == null) {
+            return decrypt(ciphertext, algorithm, javaSecurityAPIProvider);
+        }
+
+        failIfInternalCryptoInputsAreNotValid(ciphertext, algorithm, "'Internal Encryption'");
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Decrypting data using the algorithm '%s', the Java Security API provider '%s'" +
+                            " with custom params",
+                    algorithm, javaSecurityAPIProvider));
+        }
+
+        if (areInternalCryptoProvidersAvailable()) {
+
+            InternalCryptoProvider mostSuitableInternalProvider = getMostSuitableInternalProvider();
+
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Internal providers are available. The most suitable provider is '%s'",
+                        mostSuitableInternalProvider.getClass().getCanonicalName()));
+            }
+
+            return mostSuitableInternalProvider.decrypt(ciphertext, algorithm, javaSecurityAPIProvider, params);
+        } else {
+            String errorMessage = String.format("No internal crypto providers available. Correctly register " +
+                    "a service implementation of '%s' as an OSGi service", InternalCryptoProvider.class);
+            throw new CryptoException(errorMessage);
+        }
+    }
+
+    @Override
+    public byte[] customEncrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider,
+                          boolean returnSelfContainedCipherText, Object... params) throws CryptoException {
+
+        if (params == null || params.length < 1 || params[0] == null) {
+             return encrypt(cleartext, algorithm, javaSecurityAPIProvider, returnSelfContainedCipherText);
+        }
+        failIfInternalCryptoInputsAreNotValid(cleartext, algorithm, "'Internal Encryption'");
+        if (log.isDebugEnabled()) {
+
+            log.debug(String.format("Encrypting data using the algorithm '%s', the Java Security API provider '%s'" +
+                            " and custom params.",
+                    algorithm, javaSecurityAPIProvider));
+        }
+        if (areInternalCryptoProvidersAvailable()) {
+
+            InternalCryptoProvider mostSuitableInternalProvider = getMostSuitableInternalProvider();
+
+            if (log.isDebugEnabled()) {
+
+                log.debug(String.format("Internal providers are available. The most suitable provider is '%s'",
+                        mostSuitableInternalProvider.getClass().getCanonicalName()));
+            }
+            return mostSuitableInternalProvider
+                    .encrypt(cleartext, algorithm, javaSecurityAPIProvider, returnSelfContainedCipherText, params);
+
+        } else {
+            String errorMessage = String.format("No internal crypto providers available. Correctly register " +
+                    "a service implementation of '%s' as an OSGi service", InternalCryptoProvider.class);
+            throw new CryptoException(errorMessage);
+        }
+
+    }
+
     // ------------ Management methods of the default crypto service starts here. --------------------
     /**
      * Registers a new key resolver.
