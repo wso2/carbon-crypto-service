@@ -159,6 +159,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
      * @param ciphertext                The ciphertext to be decrypted.
      * @param algorithm                 The encryption / decryption algorithm
      * @param javaSecurityAPIProvider   The Java Security Provider.
+     * @param params                    The parameters required for the decryption operation.
      * @return The cleartext
      * @throws CryptoException If something unexpected happens during the decryption operation.
      */
