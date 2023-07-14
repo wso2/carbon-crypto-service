@@ -607,7 +607,7 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
                           Object... params) throws CryptoException {
 
         if (params == null || params.length < 1 || params[0] == null) {
-            decrypt(ciphertext, algorithm, javaSecurityAPIProvider);
+            return decrypt(ciphertext, algorithm, javaSecurityAPIProvider);
         }
 
         failIfInternalCryptoInputsAreNotValid(ciphertext, algorithm, "'Internal Encryption'");
@@ -639,7 +639,7 @@ public class DefaultCryptoService implements CryptoService, PrivateKeyRetriever 
                           boolean returnSelfContainedCipherText, Object... params) throws CryptoException {
 
         if (params == null || params.length < 1 || params[0] == null) {
-            encrypt(cleartext, algorithm, javaSecurityAPIProvider, returnSelfContainedCipherText);
+             return encrypt(cleartext, algorithm, javaSecurityAPIProvider, returnSelfContainedCipherText);
         }
         failIfInternalCryptoInputsAreNotValid(cleartext, algorithm, "'Internal Encryption'");
         if (log.isDebugEnabled()) {
