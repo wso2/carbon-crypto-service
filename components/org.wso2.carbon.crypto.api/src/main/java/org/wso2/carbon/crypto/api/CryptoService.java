@@ -232,6 +232,7 @@ public interface CryptoService {
      * @param ciphertext              The encrypted text.
      * @param algorithm               The encryption algorithm.
      * @param javaSecurityAPIProvider The Java Security API provider.
+     * @param params                  Additional parameters required for decryption.
      * @return The clear text in byte array format.
      * @throws CryptoException
      */
