@@ -50,13 +50,18 @@ import javax.crypto.spec.SecretKeySpec;
 public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvider {
 
     private static Log log = LogFactory.getLog(SymmetricKeyInternalCryptoProvider.class);
-    private String secretKey;
+    private byte[] secretKey;
     private static final String DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM = "AES";
     private static final String AES_GCM_SYMMETRIC_CRYPTO_ALGORITHM = "AES/GCM/NoPadding";
     public static final int GCM_IV_LENGTH = 128;
     public static final int GCM_TAG_LENGTH = 128;
 
     public SymmetricKeyInternalCryptoProvider(String secretKey) {
+
+        this.secretKey = secretKey.getBytes();
+    }
+
+    public SymmetricKeyInternalCryptoProvider(byte[] secretKey) {
 
         this.secretKey = secretKey;
     }
@@ -272,7 +277,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
 
     private SecretKeySpec getSecretKey() {
 
-        return new SecretKeySpec(secretKey.getBytes(), 0, secretKey.getBytes().length,
+        return new SecretKeySpec(secretKey, 0, secretKey.length,
                 DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM);
     }
 
