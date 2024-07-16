@@ -62,7 +62,7 @@ public class SymmetricKeyInternalCryptoProviderTest {
         byte[] plainTextBytes = PLAIN_TEXT.getBytes();
         byte[] encryptedText = symmetricKeyInternalCryptoProvider.encrypt(
                 plainTextBytes, AES_ALGORITHM, JCE_PROVIDER, false, OLD_SECRET);
-        // TODO: should return CIPHER_TEXT_FOR_OLD_SECRET
+        // TODO: Should return CIPHER_TEXT_FOR_OLD_SECRET. Update once SymmetricKeyInternalCryptoProvider behaviour is fixed.
         assertEquals(new String(Base64.getEncoder().encode(encryptedText)), CIPHER_TEXT);
     }
 
