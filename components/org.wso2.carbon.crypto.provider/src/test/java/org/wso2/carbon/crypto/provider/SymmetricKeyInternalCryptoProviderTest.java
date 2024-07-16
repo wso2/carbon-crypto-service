@@ -31,7 +31,7 @@ import static org.testng.Assert.assertEquals;
 public class SymmetricKeyInternalCryptoProviderTest {
 
     SymmetricKeyInternalCryptoProvider symmetricKeyInternalCryptoProvider;
-    private static final String OLD_SECRET = "f7b2b39207523b43a56540d30656b19b";
+    private static final String CUSTOM_SECRET = "f7b2b39207523b43a56540d30656b19b";
     private static final String SECRET = "22b97077751bc066067ffeefb83a1c16";
     private static final String PLAIN_TEXT = "wso2carbon";
     private static final String JCE_PROVIDER = "SunJCE";
@@ -39,7 +39,7 @@ public class SymmetricKeyInternalCryptoProviderTest {
     private static final String AES_ALGORITHM = "AES";
     private static final String AES_GCM_ALGORITHM = "AES/GCM/NoPadding";
     private static final String CIPHER_TEXT = "nQ2r9QHRYJP+i88JDsyOpA==";
-    private static final String CIPHER_TEXT_FOR_OLD_SECRET = "ueAbJkt7K+s20lIuvi9/1A==";
+    private static final String CIPHER_TEXT_FOR_CUSTOM_SECRET = "ueAbJkt7K+s20lIuvi9/1A==";
 
     @BeforeClass
     public void init() throws Exception {
@@ -61,8 +61,9 @@ public class SymmetricKeyInternalCryptoProviderTest {
 
         byte[] plainTextBytes = PLAIN_TEXT.getBytes();
         byte[] encryptedText = symmetricKeyInternalCryptoProvider.encrypt(
-                plainTextBytes, AES_ALGORITHM, JCE_PROVIDER, false, OLD_SECRET);
-        // TODO: Should return CIPHER_TEXT_FOR_OLD_SECRET. Update once SymmetricKeyInternalCryptoProvider behaviour is fixed.
+                plainTextBytes, AES_ALGORITHM, JCE_PROVIDER, false, CUSTOM_SECRET);
+        // TODO: Should return CIPHER_TEXT_FOR_CUSTOM_SECRET.
+        //  Update once SymmetricKeyInternalCryptoProvider behaviour is fixed.
         assertEquals(new String(Base64.getEncoder().encode(encryptedText)), CIPHER_TEXT);
     }
 
@@ -78,9 +79,9 @@ public class SymmetricKeyInternalCryptoProviderTest {
     @Test(description = "Test decryption using a custom secret.")
     public void testDecryptUsingCustomSecret() throws CryptoException {
 
-        byte[] encryptedText = Base64.getDecoder().decode(CIPHER_TEXT_FOR_OLD_SECRET);
+        byte[] encryptedText = Base64.getDecoder().decode(CIPHER_TEXT_FOR_CUSTOM_SECRET);
         byte[] decryptedText = symmetricKeyInternalCryptoProvider.decrypt(
-                encryptedText, AES_ALGORITHM, JCE_PROVIDER, OLD_SECRET);
+                encryptedText, AES_ALGORITHM, JCE_PROVIDER, CUSTOM_SECRET);
         assertEquals(new String(decryptedText), PLAIN_TEXT);
     }
 
@@ -89,7 +90,7 @@ public class SymmetricKeyInternalCryptoProviderTest {
 
         byte[] encryptedText = Base64.getDecoder().decode(CIPHER_TEXT);
         byte[] decryptedText = symmetricKeyInternalCryptoProvider.decrypt(
-                encryptedText, AES_ALGORITHM, JCE_PROVIDER, OLD_SECRET);
+                encryptedText, AES_ALGORITHM, JCE_PROVIDER, CUSTOM_SECRET);
         assertEquals(new String(decryptedText), PLAIN_TEXT);
     }
 
@@ -111,9 +112,9 @@ public class SymmetricKeyInternalCryptoProviderTest {
 
         byte[] plainTextBytes = PLAIN_TEXT.getBytes();
         byte[] encryptedText = symmetricKeyInternalCryptoProvider.encrypt(
-                plainTextBytes, AES_GCM_ALGORITHM, JCE_PROVIDER, true, OLD_SECRET);
+                plainTextBytes, AES_GCM_ALGORITHM, JCE_PROVIDER, true, CUSTOM_SECRET);
         byte[] decryptedText = symmetricKeyInternalCryptoProvider.decrypt(
-                getCipherTextFromEncodedJSON(encryptedText), AES_GCM_ALGORITHM, JCE_PROVIDER, OLD_SECRET);
+                getCipherTextFromEncodedJSON(encryptedText), AES_GCM_ALGORITHM, JCE_PROVIDER, CUSTOM_SECRET);
         assertEquals(new String(decryptedText), PLAIN_TEXT);
     }
 
