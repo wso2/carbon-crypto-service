@@ -60,8 +60,6 @@ public class DefaultCryptoProviderComponent {
 
     public static final String CRYPTO_SECRET_PROPERTY_PATH = "CryptoService.Secret";
     public static final String CRYPTO_OLD_SECRET_PROPERTY_PATH = "CryptoService.OldSecret";
-    public static final String CRYPTO_ENABLE_HEX_ENCODING_PROPERTY_PATH = "CryptoService.EnableSecretHexEncoding";
-    public static final String CRYPTO_ENABLE_OLD_HEX_ENCODING_PROPERTY_PATH = "CryptoService.EnableOldSecretHexEncoding";
     private final static Log log = LogFactory.getLog(DefaultCryptoProviderComponent.class);
     private static final String INTERNAL_KEYSTORE_FILE_PROPERTY_PATH = "Security.InternalKeyStore.Location";
     private static final String INTERNAL_KEYSTORE_TYPE_PROPERTY_PATH = "Security.InternalKeyStore.Type";
@@ -145,10 +143,6 @@ public class DefaultCryptoProviderComponent {
 
         String secret = serverConfigurationService.getFirstProperty(CRYPTO_SECRET_PROPERTY_PATH);
         String oldSecret = serverConfigurationService.getFirstProperty(CRYPTO_OLD_SECRET_PROPERTY_PATH);
-        boolean enableHexEncoding = Boolean.parseBoolean(
-                serverConfigurationService.getFirstProperty(CRYPTO_ENABLE_HEX_ENCODING_PROPERTY_PATH));
-        boolean enableOldSecretHexEncoding = Boolean.parseBoolean(
-                serverConfigurationService.getFirstProperty(CRYPTO_ENABLE_OLD_HEX_ENCODING_PROPERTY_PATH));
 
         if (StringUtils.isBlank(secret)) {
 
@@ -163,17 +157,24 @@ public class DefaultCryptoProviderComponent {
             return null;
         }
         try {
-            byte[] decodedSecret = enableHexEncoding ? Hex.decodeHex(secret.toCharArray()) : secret.getBytes();
+            byte[] decodedSecret = determineEncodingAndEncode(secret);
             if (StringUtils.isBlank(oldSecret)) {
                 return new SymmetricKeyInternalCryptoProvider(decodedSecret);
             } else {
-                byte[] decodedOldSecret = enableOldSecretHexEncoding
-                        ? Hex.decodeHex(oldSecret.toCharArray()) : oldSecret.getBytes();
+                byte[] decodedOldSecret = determineEncodingAndEncode(oldSecret);
                 return new SymmetricKeyInternalCryptoProvider(decodedSecret, decodedOldSecret);
             }
         } catch (DecoderException e) {
             throw new CryptoException(e.getMessage());
         }
+    }
+
+    private byte[] determineEncodingAndEncode(String secret) throws DecoderException {
+
+        if (secret.length() > 32) {
+            return Hex.decodeHex(secret.toCharArray());
+        }
+        return secret.getBytes();
     }
 
     private KeyResolver getContextIndependentKeyResolver() {
