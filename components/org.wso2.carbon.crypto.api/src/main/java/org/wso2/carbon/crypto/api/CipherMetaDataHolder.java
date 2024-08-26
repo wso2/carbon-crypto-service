@@ -43,6 +43,9 @@ public class CipherMetaDataHolder {
     // Initialization vector used in AES-GCM mode.
     private String iv;
 
+    // Key id which is used to determine which key was used to encrypt the secret.
+    private String kid;
+
 
     public String getTransformation() {
         return t;
@@ -78,6 +81,16 @@ public class CipherMetaDataHolder {
 
     public void setThumbprintDigest(String digest) {
         this.tpd = digest;
+    }
+
+    public void setKeyId(String kid) {
+
+        this.kid = kid;
+    }
+
+    public String getKeyId() {
+
+        return this.kid;
     }
 
     /**
@@ -128,12 +141,25 @@ public class CipherMetaDataHolder {
         this.tpd = digest;
     }
 
+    @Deprecated
     public byte[] getSelfContainedCiphertextWithIv(byte[] originalCipher, byte[] iv) {
 
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();;
         CipherInitializationVectorHolder cipherInitializationVectorHolder = new CipherInitializationVectorHolder();
         cipherInitializationVectorHolder.setCipher(Base64.encode(originalCipher));
         cipherInitializationVectorHolder.setInitializationVector(Base64.encode(iv));
+        String cipherWithMetadataStr = gson.toJson(cipherInitializationVectorHolder);
+
+        return cipherWithMetadataStr.getBytes(Charset.defaultCharset());
+    }
+
+    public byte[] getSelfContainedCiphertextWithIv(byte[] originalCipher, byte[] iv, String kid) {
+
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+        CipherInitializationVectorHolder cipherInitializationVectorHolder = new CipherInitializationVectorHolder();
+        cipherInitializationVectorHolder.setCipher(Base64.encode(originalCipher));
+        cipherInitializationVectorHolder.setInitializationVector(Base64.encode(iv));
+        cipherInitializationVectorHolder.setKeyId(kid);
         String cipherWithMetadataStr = gson.toJson(cipherInitializationVectorHolder);
 
         return cipherWithMetadataStr.getBytes(Charset.defaultCharset());
@@ -153,6 +179,7 @@ public class CipherMetaDataHolder {
                 gson.fromJson(cipherStr, CipherInitializationVectorHolder.class);
         setIv(cipherInitializationVectorHolder.getInitializationVector());
         setCipherText(cipherInitializationVectorHolder.getCipher());
+        setKeyId(cipherInitializationVectorHolder.getKeyId());
     }
 
     @Override
@@ -166,6 +193,8 @@ public class CipherMetaDataHolder {
         private String cipher;
 
         private String initializationVector;
+
+        private String keyId;
 
         public String getCipher() {
 
@@ -185,6 +214,16 @@ public class CipherMetaDataHolder {
         public void setInitializationVector(String initializationVector) {
 
             this.initializationVector = initializationVector;
+        }
+
+        public String getKeyId() {
+
+            return keyId;
+        }
+
+        public void setKeyId(String keyId) {
+
+            this.keyId = keyId;
         }
 
     }

@@ -33,7 +33,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.crypto.api.CryptoException;
-import org.wso2.carbon.crypto.api.ExternalCryptoProvider;
 import org.wso2.carbon.crypto.api.InternalCryptoProvider;
 import org.wso2.carbon.crypto.api.KeyResolver;
 import org.wso2.carbon.crypto.provider.ContextIndependentKeyResolver;
