@@ -18,8 +18,6 @@
 
 package org.wso2.carbon.crypto.provider.internal;
 
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -154,26 +152,11 @@ public class DefaultCryptoProviderComponent {
                 log.info(infoMessage);
             }
             return null;
+        } else if (StringUtils.isBlank(oldSecret)) {
+            return new SymmetricKeyInternalCryptoProvider(secret);
+        } else {
+            return new SymmetricKeyInternalCryptoProvider(secret, oldSecret);
         }
-        try {
-            byte[] decodedSecret = determineEncodingAndEncode(secret);
-            if (StringUtils.isBlank(oldSecret)) {
-                return new SymmetricKeyInternalCryptoProvider(decodedSecret);
-            } else {
-                byte[] decodedOldSecret = determineEncodingAndEncode(oldSecret);
-                return new SymmetricKeyInternalCryptoProvider(decodedSecret, decodedOldSecret);
-            }
-        } catch (DecoderException e) {
-            throw new CryptoException(e.getMessage());
-        }
-    }
-
-    private byte[] determineEncodingAndEncode(String secret) throws DecoderException {
-
-        if (secret.length() > 32) {
-            return Hex.decodeHex(secret.toCharArray());
-        }
-        return secret.getBytes();
     }
 
     private KeyResolver getContextIndependentKeyResolver() {

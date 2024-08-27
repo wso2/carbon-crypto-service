@@ -21,6 +21,8 @@ package org.wso2.carbon.crypto.provider;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.axiom.om.util.Base64;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -62,19 +64,28 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
 
     public SymmetricKeyInternalCryptoProvider(String secretKey) {
 
-        this(secretKey.getBytes(), secretKey.getBytes());
-    }
-
-    public SymmetricKeyInternalCryptoProvider(byte[] secretKey) {
-
         this(secretKey, secretKey);
     }
 
-    public SymmetricKeyInternalCryptoProvider(byte[] secretKey, byte[] oldSecretKey) {
+    public SymmetricKeyInternalCryptoProvider(String secretKey, String oldSecretKey) {
 
-        this.secretKey = secretKey;
-        this.secretId = hashSHA256(secretKey);
-        this.oldSecretKey = oldSecretKey;
+        byte[] decodedSecret = determineEncodingAndEncode(secretKey);
+        this.secretKey = decodedSecret;
+        this.secretId = hashSHA256(decodedSecret);
+        this.oldSecretKey = determineEncodingAndEncode(oldSecretKey);
+    }
+
+    private static byte[] determineEncodingAndEncode(String secret) {
+
+        if (secret.length() > 32) {
+            try {
+                return Hex.decodeHex(secret.toCharArray());
+            } catch (DecoderException e) {
+                log.error("The provided string may contain invalid characters or be improperly formatted.");
+                return null;
+            }
+        }
+        return secret.getBytes();
     }
 
     private static String hashSHA256(byte[] data) {
