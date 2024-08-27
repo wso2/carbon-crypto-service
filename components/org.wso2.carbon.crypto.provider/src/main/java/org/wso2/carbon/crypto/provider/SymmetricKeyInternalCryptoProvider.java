@@ -77,7 +77,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
         this.oldSecretKey = oldSecretKey;
     }
 
-    public static String hashSHA256(byte[] data) {
+    private static String hashSHA256(byte[] data) {
 
         try {
             MessageDigest digest = MessageDigest.getInstance(DIGEST_ALGORITHM_SHA256);

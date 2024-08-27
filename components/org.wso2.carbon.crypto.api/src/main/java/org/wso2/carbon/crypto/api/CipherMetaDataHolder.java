@@ -141,6 +141,16 @@ public class CipherMetaDataHolder {
         this.tpd = digest;
     }
 
+    /**
+     * Combines the original ciphertext and initialization vector (IV) into a single JSON string with
+     * metadata and returns it as a byte array.
+     *
+     * @param originalCipher    The original ciphertext as a byte array.
+     * @param iv                The initialization vector (IV) as a byte array.
+     * @return A byte array representing the JSON containing the Base64 encoded ciphertext and IV.
+     *
+     * @deprecated Use @link{{@link #getSelfContainedCiphertextWithIv(byte[], byte[], String)}}
+     */
     @Deprecated
     public byte[] getSelfContainedCiphertextWithIv(byte[] originalCipher, byte[] iv) {
 
@@ -153,6 +163,15 @@ public class CipherMetaDataHolder {
         return cipherWithMetadataStr.getBytes(Charset.defaultCharset());
     }
 
+    /**
+     * Combines the original ciphertext, initialization vector (IV), and key identifier (KID) into a
+     * single JSON string with metadata and returns it as a byte array.
+     *
+     * @param originalCipher    The original ciphertext as a byte array.
+     * @param iv                The initialization vector (IV) as a byte array.
+     * @param kid               The key identifier as a string.
+     * @return A byte array representing the JSON containing the Base64 encoded ciphertext, IV, and KID.
+     */
     public byte[] getSelfContainedCiphertextWithIv(byte[] originalCipher, byte[] iv, String kid) {
 
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
