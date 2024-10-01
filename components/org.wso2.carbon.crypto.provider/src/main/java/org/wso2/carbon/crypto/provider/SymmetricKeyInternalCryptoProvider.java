@@ -87,11 +87,8 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
                 throw new SecurityException(
                         "The provided string may contain invalid characters or be improperly formatted.");
             }
-        } else if (secret.length() == 32) {
-            return secret.getBytes();
-        } else {
-            throw new SecurityException("The provided secret is not a valid AES key.");
         }
+        return secret.getBytes();
     }
 
     private static String hashSHA256(byte[] data) {
