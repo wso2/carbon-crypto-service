@@ -55,7 +55,7 @@ public class SymmetricKeyInternalCryptoProviderTest {
     public void init() {
 
         cryptoProvider = new SymmetricKeyInternalCryptoProvider(SECRET);
-        cryptoProviderWithBackupSecret = new SymmetricKeyInternalCryptoProvider(SECRET, OLD_SECRET);
+        cryptoProviderWithBackupSecret = new SymmetricKeyInternalCryptoProvider(SECRET, OLD_SECRET, true);
     }
 
     // Default tests.

@@ -20,6 +20,7 @@ package org.wso2.carbon.crypto.api;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.axiom.om.util.Base64;
+import org.apache.commons.lang.StringUtils;
 
 import java.nio.charset.Charset;
 
@@ -148,19 +149,10 @@ public class CipherMetaDataHolder {
      * @param originalCipher    The original ciphertext as a byte array.
      * @param iv                The initialization vector (IV) as a byte array.
      * @return A byte array representing the JSON containing the Base64 encoded ciphertext and IV.
-     *
-     * @deprecated Use @link{{@link #getSelfContainedCiphertextWithIv(byte[], byte[], String)}}
      */
-    @Deprecated
     public byte[] getSelfContainedCiphertextWithIv(byte[] originalCipher, byte[] iv) {
 
-        Gson gson = new GsonBuilder().disableHtmlEscaping().create();;
-        CipherInitializationVectorHolder cipherInitializationVectorHolder = new CipherInitializationVectorHolder();
-        cipherInitializationVectorHolder.setCipher(Base64.encode(originalCipher));
-        cipherInitializationVectorHolder.setInitializationVector(Base64.encode(iv));
-        String cipherWithMetadataStr = gson.toJson(cipherInitializationVectorHolder);
-
-        return cipherWithMetadataStr.getBytes(Charset.defaultCharset());
+        return getSelfContainedCiphertextWithIv(originalCipher, iv, null);
     }
 
     /**
@@ -178,9 +170,10 @@ public class CipherMetaDataHolder {
         CipherInitializationVectorHolder cipherInitializationVectorHolder = new CipherInitializationVectorHolder();
         cipherInitializationVectorHolder.setCipher(Base64.encode(originalCipher));
         cipherInitializationVectorHolder.setInitializationVector(Base64.encode(iv));
-        cipherInitializationVectorHolder.setKeyId(kid);
+        if (StringUtils.isNotBlank(kid)) {
+            cipherInitializationVectorHolder.setKeyId(kid);
+        }
         String cipherWithMetadataStr = gson.toJson(cipherInitializationVectorHolder);
-
         return cipherWithMetadataStr.getBytes(Charset.defaultCharset());
     }
 
@@ -198,7 +191,10 @@ public class CipherMetaDataHolder {
                 gson.fromJson(cipherStr, CipherInitializationVectorHolder.class);
         setIv(cipherInitializationVectorHolder.getInitializationVector());
         setCipherText(cipherInitializationVectorHolder.getCipher());
-        setKeyId(cipherInitializationVectorHolder.getKeyId());
+        String keyId = cipherInitializationVectorHolder.getKeyId();
+        if (StringUtils.isNotBlank(keyId)) {
+            setKeyId(keyId);
+        }
     }
 
     @Override

@@ -56,6 +56,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
     private final byte[] secretKey;
     private final String secretId;
     private final byte[] oldSecretKey;
+    private final boolean enableOldSecretKey;
     private static final String DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM = "AES";
     private static final String AES_GCM_SYMMETRIC_CRYPTO_ALGORITHM = "AES/GCM/NoPadding";
     private static final String DIGEST_ALGORITHM_SHA256 = "SHA-256";
@@ -64,28 +65,33 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
 
     public SymmetricKeyInternalCryptoProvider(String secretKey) {
 
-        this(secretKey, secretKey);
+        this(secretKey, secretKey, false);
     }
 
-    public SymmetricKeyInternalCryptoProvider(String secretKey, String oldSecretKey) {
+    public SymmetricKeyInternalCryptoProvider(String secretKey, String oldSecretKey, boolean enableOldSecretKey) {
 
         byte[] decodedSecret = determineEncodingAndEncode(secretKey);
         this.secretKey = decodedSecret;
         this.secretId = hashSHA256(decodedSecret);
         this.oldSecretKey = determineEncodingAndEncode(oldSecretKey);
+        this.enableOldSecretKey = enableOldSecretKey;
     }
 
     private static byte[] determineEncodingAndEncode(String secret) {
 
-        if (secret.length() > 32) {
+        // Use hex encoding if the secret is AES-256 or AES-192.
+        if (secret.length() == 64 || secret.length() == 48) {
             try {
                 return Hex.decodeHex(secret.toCharArray());
             } catch (DecoderException e) {
-                log.error("The provided string may contain invalid characters or be improperly formatted.");
-                return null;
+                throw new SecurityException(
+                        "The provided string may contain invalid characters or be improperly formatted.");
             }
+        } else if (secret.length() == 32) {
+            return secret.getBytes();
+        } else {
+            throw new SecurityException("The provided secret is not a valid AES key.");
         }
-        return secret.getBytes();
     }
 
     private static String hashSHA256(byte[] data) {
@@ -94,8 +100,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
             MessageDigest digest = MessageDigest.getInstance(DIGEST_ALGORITHM_SHA256);
             return Base64.encode(digest.digest(data));
         } catch (NoSuchAlgorithmException e) {
-            log.error("Failed to compute hash due to an error." + e.getMessage());
-            return null;
+            throw new SecurityException("Failed to compute hash due to an error." + e.getMessage());
         }
     }
 
@@ -188,7 +193,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
                 }
                 CipherMetaDataHolder cipherMetaDataHolder = getCipherMetaDataHolderFromCipherText(ciphertext);
                 // Use the old secret if keyID does not match.
-                if (!retry && !secretId.equals(cipherMetaDataHolder.getKeyId())) {
+                if (!retry && enableOldSecretKey && !secretId.equals(cipherMetaDataHolder.getKeyId())) {
                     secretKeySpec = getOldSecretKey();
                 }
                 cipher.init(Cipher.DECRYPT_MODE, secretKeySpec,
@@ -379,11 +384,15 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
 
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         CipherMetaDataHolder cipherHolder = new CipherMetaDataHolder();
-        cipherHolder.setCipherText(
-                Base64.encode(cipherHolder.getSelfContainedCiphertextWithIv(originalCipher, iv, secretId)));
+        if (enableOldSecretKey) {
+            cipherHolder.setCipherText(
+                    Base64.encode(cipherHolder.getSelfContainedCiphertextWithIv(originalCipher, iv, secretId)));
+        } else {
+            cipherHolder.setCipherText(
+                    Base64.encode(cipherHolder.getSelfContainedCiphertextWithIv(originalCipher, iv)));
+        }
         cipherHolder.setTransformation(transformation);
         cipherHolder.setIv(Base64.encode(iv));
-        cipherHolder.setKeyId(secretId);
         String cipherWithMetadataStr = gson.toJson(cipherHolder);
         if (log.isDebugEnabled()) {
             log.debug("Cipher with meta data : " + cipherWithMetadataStr);
