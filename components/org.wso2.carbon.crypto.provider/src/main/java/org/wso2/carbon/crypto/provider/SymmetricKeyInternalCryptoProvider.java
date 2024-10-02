@@ -292,7 +292,8 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
      */
     private SecretKeySpec getSecretKey(String customSecretKey) {
 
-        return new SecretKeySpec(customSecretKey.getBytes(), 0, customSecretKey.getBytes().length,
+        byte[] encodedSecretKey = determineEncodingAndEncode(customSecretKey);
+        return new SecretKeySpec(encodedSecretKey, 0, encodedSecretKey.length,
                 DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM);
     }
 
