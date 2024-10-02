@@ -54,9 +54,9 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
 
     private static Log log = LogFactory.getLog(SymmetricKeyInternalCryptoProvider.class);
     private final byte[] secretKey;
-    private final String secretId;
+    private final String keyId;
     private final byte[] oldSecretKey;
-    private final boolean enableOldSecretKey;
+    private final boolean enableKeyId;
     private static final String DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM = "AES";
     private static final String AES_GCM_SYMMETRIC_CRYPTO_ALGORITHM = "AES/GCM/NoPadding";
     private static final String DIGEST_ALGORITHM_SHA256 = "SHA-256";
@@ -68,18 +68,18 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
         this(secretKey, secretKey, false);
     }
 
-    public SymmetricKeyInternalCryptoProvider(String secretKey, String oldSecretKey, boolean enableOldSecretKey) {
+    public SymmetricKeyInternalCryptoProvider(String secretKey, String oldSecretKey, boolean enableKeyId) {
 
         byte[] decodedSecret = determineEncodingAndEncode(secretKey);
         this.secretKey = decodedSecret;
-        this.secretId = hashSHA256(decodedSecret);
+        this.keyId = hashSHA256(decodedSecret);
         this.oldSecretKey = determineEncodingAndEncode(oldSecretKey);
-        this.enableOldSecretKey = enableOldSecretKey;
+        this.enableKeyId = enableKeyId;
     }
 
     private static byte[] determineEncodingAndEncode(String secret) {
 
-        // Use hex encoding if the secret is AES-256 or AES-192.
+        // Use hex encoding if the secret is AES-256 (64 characters) or AES-192 (48 characters).
         if (secret.length() == 64 || secret.length() == 48) {
             try {
                 return Hex.decodeHex(secret.toCharArray());
@@ -190,7 +190,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
                 }
                 CipherMetaDataHolder cipherMetaDataHolder = getCipherMetaDataHolderFromCipherText(ciphertext);
                 // Use the old secret if keyID does not match.
-                if (!retry && enableOldSecretKey && !secretId.equals(cipherMetaDataHolder.getKeyId())) {
+                if (!retry && enableKeyId && !StringUtils.equals(keyId,cipherMetaDataHolder.getKeyId())) {
                     secretKeySpec = getOldSecretKey();
                 }
                 cipher.init(Cipher.DECRYPT_MODE, secretKeySpec,
@@ -381,13 +381,10 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
 
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         CipherMetaDataHolder cipherHolder = new CipherMetaDataHolder();
-        if (enableOldSecretKey) {
-            cipherHolder.setCipherText(
-                    Base64.encode(cipherHolder.getSelfContainedCiphertextWithIv(originalCipher, iv, secretId)));
-        } else {
-            cipherHolder.setCipherText(
-                    Base64.encode(cipherHolder.getSelfContainedCiphertextWithIv(originalCipher, iv)));
-        }
+        byte[] cipherText = enableKeyId
+                ? cipherHolder.getSelfContainedCiphertextWithIv(originalCipher, iv, keyId)
+                : cipherHolder.getSelfContainedCiphertextWithIv(originalCipher, iv);
+        cipherHolder.setCipherText(Base64.encode(cipherText));
         cipherHolder.setTransformation(transformation);
         cipherHolder.setIv(Base64.encode(iv));
         String cipherWithMetadataStr = gson.toJson(cipherHolder);

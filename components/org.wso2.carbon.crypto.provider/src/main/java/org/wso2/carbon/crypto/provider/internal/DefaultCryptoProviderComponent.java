@@ -56,8 +56,8 @@ import java.security.cert.CertificateException;
 public class DefaultCryptoProviderComponent {
 
     public static final String CRYPTO_SECRET_PROPERTY_PATH = "CryptoService.Secret";
-    public static final String CRYPTO_OLD_SECRET_PROPERTY_PATH = "CryptoService.OldSecret.Secret";
-    private static final String CRYPTO_OLD_SECRET_ENABLED_PROPERTY_PATH = "CryptoService.OldSecret.Enabled";
+    private static final String CRYPTO_OLD_SECRET_PROPERTY_PATH = "CryptoService.OldSecret";
+    private static final String CRYPTO_KEY_ID_ENABLING_PROPERTY_PATH = "CryptoService.EnableKeyId";
     private final static Log log = LogFactory.getLog(DefaultCryptoProviderComponent.class);
     private static final String INTERNAL_KEYSTORE_FILE_PROPERTY_PATH = "Security.InternalKeyStore.Location";
     private static final String INTERNAL_KEYSTORE_TYPE_PROPERTY_PATH = "Security.InternalKeyStore.Type";
@@ -141,8 +141,8 @@ public class DefaultCryptoProviderComponent {
 
         String secret = serverConfigurationService.getFirstProperty(CRYPTO_SECRET_PROPERTY_PATH);
         String oldSecret = serverConfigurationService.getFirstProperty(CRYPTO_OLD_SECRET_PROPERTY_PATH);
-        boolean enableOldSecret = Boolean.parseBoolean(serverConfigurationService.getFirstProperty(
-                CRYPTO_OLD_SECRET_ENABLED_PROPERTY_PATH));
+        boolean enableKeyId = Boolean.parseBoolean(serverConfigurationService.getFirstProperty(
+                CRYPTO_KEY_ID_ENABLING_PROPERTY_PATH));
 
         if (StringUtils.isBlank(secret)) {
 
@@ -155,7 +155,7 @@ public class DefaultCryptoProviderComponent {
                 log.info(infoMessage);
             }
             return null;
-        } else if (enableOldSecret) {
+        } else if (enableKeyId) {
             return new SymmetricKeyInternalCryptoProvider(secret, StringUtils.defaultIfBlank(oldSecret, secret), true);
         }
         return new SymmetricKeyInternalCryptoProvider(secret);
