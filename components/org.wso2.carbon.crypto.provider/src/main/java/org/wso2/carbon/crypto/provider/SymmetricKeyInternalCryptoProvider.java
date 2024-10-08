@@ -226,32 +226,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
     public byte[] encrypt(byte[] cleartext, String algorithm, String javaSecurityAPIProvider,
                           boolean returnSelfContainedCipherText) throws CryptoException {
 
-        if (log.isDebugEnabled()) {
-            log.debug(String.format("Encrypting data with symmetric key encryption with algorithm: '%s'.", algorithm));
-        }
-        byte[] cipherText;
-        if (cleartext == null) {
-            throw new CryptoException("Plaintext can't be null.");
-        }
-        if (AES_GCM_SYMMETRIC_CRYPTO_ALGORITHM.equals(algorithm)) {
-            return encryptWithGCMMode(cleartext, javaSecurityAPIProvider, returnSelfContainedCipherText);
-        }
-        if (StringUtils.isNotBlank(algorithm) && cleartext.length == 0) {
-            if (log.isDebugEnabled()) {
-                log.debug("Plaintext is empty. An empty array will be used as the ciphertext bytes.");
-            }
-            cipherText = StringUtils.EMPTY.getBytes();
-            if (returnSelfContainedCipherText) {
-                return createSelfContainedCiphertextWithPlainAES(cipherText, algorithm);
-            } else {
-                return cipherText;
-            }
-        }
-        if (returnSelfContainedCipherText) {
-            cipherText = encrypt(cleartext, algorithm, javaSecurityAPIProvider);
-            return createSelfContainedCiphertextWithPlainAES(cipherText, algorithm);
-        }
-        return encrypt(cleartext, algorithm, javaSecurityAPIProvider);
+        return encrypt(cleartext, algorithm, javaSecurityAPIProvider, returnSelfContainedCipherText, (Object) null);
     }
 
     @Override
@@ -261,18 +236,13 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
         if (log.isDebugEnabled()) {
             log.debug(String.format("Encrypting data with symmetric key encryption with algorithm: '%s'.", algorithm));
         }
-        if (params.length == 0) {
-            return encrypt(cleartext, algorithm, javaSecurityAPIProvider, returnSelfContainedCipherText);
-        }
-
-        byte[] cipherText;
         if (cleartext == null) {
             throw new CryptoException("Plaintext can't be null.");
         }
         if (AES_GCM_SYMMETRIC_CRYPTO_ALGORITHM.equals(algorithm)) {
             return encryptWithGCMMode(cleartext, javaSecurityAPIProvider, returnSelfContainedCipherText, params);
         }
-        return encrypt(cleartext, algorithm, javaSecurityAPIProvider, returnSelfContainedCipherText);
+        return encryptWithoutGCMMode(cleartext, javaSecurityAPIProvider, returnSelfContainedCipherText, params);
     }
 
     private SecretKeySpec getSecretKey() {
@@ -356,6 +326,61 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
             throw new CryptoException(errorMessage, e);
         }
         return cipherText;
+    }
+
+    /**
+     * This method will encrypt a given plain text in AES/ECB/PKCS5Padding cipher transformation
+     *
+     * @param plaintext                     Plain text that need to be encrypted in this mode.
+     * @param javaSecurityAPIProvider       Crypto provider.
+     * @param returnSelfContainedCipherText Whether the ciphertext should be in self-contained  mode or not.
+     * @return byte array of encrypted cipher text.
+     * @throws CryptoException
+     */
+    private byte[] encryptWithoutGCMMode(byte[] plaintext, String javaSecurityAPIProvider,
+                                      boolean returnSelfContainedCipherText, Object... params)
+            throws CryptoException {
+
+        Cipher cipher;
+        SecretKeySpec secretKeySpec = getSecretKey();
+        if (params != null && params.length > 0 && params[0] != null) {
+            secretKeySpec = getSecretKey((String) params[0]);
+        }
+        try {
+            if (StringUtils.isBlank(javaSecurityAPIProvider)) {
+                cipher = Cipher.getInstance(DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM);
+            } else {
+                cipher = Cipher.getInstance(DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM, javaSecurityAPIProvider);
+            }
+            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+
+            byte[] cipherText;
+            if (plaintext.length == 0) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Plaintext is empty. An empty array will be used as the ciphertext bytes.");
+                }
+                cipherText = StringUtils.EMPTY.getBytes();
+                if (returnSelfContainedCipherText) {
+                    return createSelfContainedCiphertextWithPlainAES(cipherText, DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM);
+                } else {
+                    return cipherText;
+                }
+            }
+            cipherText = cipher.doFinal(plaintext);
+            if (returnSelfContainedCipherText) {
+                return createSelfContainedCiphertextWithPlainAES(cipherText, DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM);
+            }
+            return cipherText;
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException |
+                 NoSuchProviderException | IllegalBlockSizeException e) {
+
+            String errorMessage = String.format("An error occurred while encrypting using the algorithm : '%s'"
+                    , DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM);
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+            throw new CryptoException(errorMessage, e);
+        }
     }
 
     /**

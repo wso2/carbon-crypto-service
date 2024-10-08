@@ -178,10 +178,10 @@ public class CipherMetaDataHolder {
     }
 
     /**
-     * This method will extract the initialization vector and original ciphertext from input ciphertext and set them
-     * to metadata in CipherMetaDataHolder object.
+     * This method extracts the initialization vector, original ciphertext, and key ID from the input ciphertext
+     * and sets them to metadata in the CipherMetaDataHolder object.
      *
-     * @param cipherTextBytes This input cipher text contains both original cipher and iv.
+     * @param cipherTextBytes This input ciphertext contains the original cipher, initialization vector, and key ID.
      */
     public void setIvAndOriginalCipherText(byte[] cipherTextBytes) {
 

@@ -59,7 +59,6 @@ public class SymmetricKeyInternalCryptoProviderTest {
     }
 
     // Default tests.
-
     @Test(description = "Test encryption using the default secret.")
     public void testEncrypt() throws CryptoException {
 
@@ -74,9 +73,7 @@ public class SymmetricKeyInternalCryptoProviderTest {
         byte[] plainTextBytes = PLAIN_TEXT.getBytes();
         byte[] encryptedText = cryptoProvider.encrypt(
                 plainTextBytes, AES_ALGORITHM, JCE_PROVIDER, false, OLD_SECRET);
-        // TODO: Should return CIPHER_TEXT_FOR_OLD_SECRET.
-        //  Update once SymmetricKeyInternalCryptoProvider behaviour is fixed.
-        assertEquals(new String(Base64.getEncoder().encode(encryptedText)), CIPHER_TEXT);
+        assertEquals(new String(Base64.getEncoder().encode(encryptedText)), CIPHER_TEXT_FOR_OLD_SECRET);
     }
 
     @Test(description = "Test decryption using the default secret.")
@@ -116,7 +113,6 @@ public class SymmetricKeyInternalCryptoProviderTest {
     }
 
     // Default tests in AES-GCM mode.
-
     @Test(description = "Test GCM encryption using the default secret.")
     public void testEncryptDecryptGCM() throws CryptoException {
 
@@ -155,7 +151,6 @@ public class SymmetricKeyInternalCryptoProviderTest {
     }
 
     // Tests with fallback mode.
-
     @Test(description = "Test GCM encryption using the default secret (with fallback mode).")
     public void testEncryptDecryptGCMOldMode() throws CryptoException {
 
