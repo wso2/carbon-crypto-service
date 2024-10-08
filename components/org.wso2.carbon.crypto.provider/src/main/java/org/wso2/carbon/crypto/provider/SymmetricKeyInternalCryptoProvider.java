@@ -378,7 +378,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
 
             String errorMessage = String.format("An error occurred while encrypting using the algorithm : '%s'",
                     DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM);
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
             throw new CryptoException(errorMessage, e);
