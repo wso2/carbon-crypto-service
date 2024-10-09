@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020-2024, WSO2 LLC. (http://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +20,7 @@ package org.wso2.carbon.crypto.api;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.axiom.om.util.Base64;
+import org.apache.commons.lang.StringUtils;
 
 import java.nio.charset.Charset;
 
@@ -42,6 +43,9 @@ public class CipherMetaDataHolder {
 
     // Initialization vector used in AES-GCM mode.
     private String iv;
+
+    // Key id which is used to determine which key was used to encrypt the secret.
+    private String kid;
 
 
     public String getTransformation() {
@@ -78,6 +82,16 @@ public class CipherMetaDataHolder {
 
     public void setThumbprintDigest(String digest) {
         this.tpd = digest;
+    }
+
+    public void setKeyId(String kid) {
+
+        this.kid = kid;
+    }
+
+    public String getKeyId() {
+
+        return this.kid;
     }
 
     /**
@@ -128,22 +142,46 @@ public class CipherMetaDataHolder {
         this.tpd = digest;
     }
 
+    /**
+     * Combines the original ciphertext and initialization vector (IV) into a single JSON string with
+     * metadata and returns it as a byte array.
+     *
+     * @param originalCipher    The original ciphertext as a byte array.
+     * @param iv                The initialization vector (IV) as a byte array.
+     * @return A byte array representing the JSON containing the Base64 encoded ciphertext and IV.
+     */
     public byte[] getSelfContainedCiphertextWithIv(byte[] originalCipher, byte[] iv) {
 
-        Gson gson = new GsonBuilder().disableHtmlEscaping().create();;
+        return getSelfContainedCiphertextWithIv(originalCipher, iv, null);
+    }
+
+    /**
+     * Combines the original ciphertext, initialization vector (IV), and key identifier (KID) into a
+     * single JSON string with metadata and returns it as a byte array.
+     *
+     * @param originalCipher    The original ciphertext as a byte array.
+     * @param iv                The initialization vector (IV) as a byte array.
+     * @param kid               The key identifier as a string.
+     * @return A byte array representing the JSON containing the Base64 encoded ciphertext, IV, and KID.
+     */
+    public byte[] getSelfContainedCiphertextWithIv(byte[] originalCipher, byte[] iv, String kid) {
+
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         CipherInitializationVectorHolder cipherInitializationVectorHolder = new CipherInitializationVectorHolder();
         cipherInitializationVectorHolder.setCipher(Base64.encode(originalCipher));
         cipherInitializationVectorHolder.setInitializationVector(Base64.encode(iv));
+        if (StringUtils.isNotBlank(kid)) {
+            cipherInitializationVectorHolder.setKeyId(kid);
+        }
         String cipherWithMetadataStr = gson.toJson(cipherInitializationVectorHolder);
-
         return cipherWithMetadataStr.getBytes(Charset.defaultCharset());
     }
 
     /**
-     * This method will extract the initialization vector and original ciphertext from input ciphertext and set them
-     * to metadata in CipherMetaDataHolder object.
+     * This method extracts the initialization vector, original ciphertext, and key ID from the input ciphertext
+     * and sets them to metadata in the CipherMetaDataHolder object.
      *
-     * @param cipherTextBytes This input cipher text contains both original cipher and iv.
+     * @param cipherTextBytes This input ciphertext contains the original cipher, initialization vector, and key ID.
      */
     public void setIvAndOriginalCipherText(byte[] cipherTextBytes) {
 
@@ -153,6 +191,10 @@ public class CipherMetaDataHolder {
                 gson.fromJson(cipherStr, CipherInitializationVectorHolder.class);
         setIv(cipherInitializationVectorHolder.getInitializationVector());
         setCipherText(cipherInitializationVectorHolder.getCipher());
+        String keyId = cipherInitializationVectorHolder.getKeyId();
+        if (StringUtils.isNotBlank(keyId)) {
+            setKeyId(keyId);
+        }
     }
 
     @Override
@@ -166,6 +208,8 @@ public class CipherMetaDataHolder {
         private String cipher;
 
         private String initializationVector;
+
+        private String keyId;
 
         public String getCipher() {
 
@@ -185,6 +229,16 @@ public class CipherMetaDataHolder {
         public void setInitializationVector(String initializationVector) {
 
             this.initializationVector = initializationVector;
+        }
+
+        public String getKeyId() {
+
+            return keyId;
+        }
+
+        public void setKeyId(String keyId) {
+
+            this.keyId = keyId;
         }
 
     }

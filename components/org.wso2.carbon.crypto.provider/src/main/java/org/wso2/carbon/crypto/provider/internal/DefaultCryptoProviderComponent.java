@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018-2024, WSO2 LLC. (http://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,7 +31,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.crypto.api.CryptoException;
-import org.wso2.carbon.crypto.api.ExternalCryptoProvider;
 import org.wso2.carbon.crypto.api.InternalCryptoProvider;
 import org.wso2.carbon.crypto.api.KeyResolver;
 import org.wso2.carbon.crypto.provider.ContextIndependentKeyResolver;
@@ -57,6 +56,8 @@ import java.security.cert.CertificateException;
 public class DefaultCryptoProviderComponent {
 
     public static final String CRYPTO_SECRET_PROPERTY_PATH = "CryptoService.Secret";
+    private static final String CRYPTO_OLD_SECRET_PROPERTY_PATH = "CryptoService.OldSecret";
+    private static final String CRYPTO_KEY_ID_ENABLING_PROPERTY_PATH = "CryptoService.EnableKeyId";
     private final static Log log = LogFactory.getLog(DefaultCryptoProviderComponent.class);
     private static final String INTERNAL_KEYSTORE_FILE_PROPERTY_PATH = "Security.InternalKeyStore.Location";
     private static final String INTERNAL_KEYSTORE_TYPE_PROPERTY_PATH = "Security.InternalKeyStore.Type";
@@ -139,6 +140,9 @@ public class DefaultCryptoProviderComponent {
     private SymmetricKeyInternalCryptoProvider getSymmetricKeyInternalCryptoProvider() throws CryptoException {
 
         String secret = serverConfigurationService.getFirstProperty(CRYPTO_SECRET_PROPERTY_PATH);
+        String oldSecret = serverConfigurationService.getFirstProperty(CRYPTO_OLD_SECRET_PROPERTY_PATH);
+        boolean enableKeyId = Boolean.parseBoolean(serverConfigurationService.getFirstProperty(
+                CRYPTO_KEY_ID_ENABLING_PROPERTY_PATH));
 
         if (StringUtils.isBlank(secret)) {
 
@@ -151,9 +155,10 @@ public class DefaultCryptoProviderComponent {
                 log.info(infoMessage);
             }
             return null;
-        } else {
-            return new SymmetricKeyInternalCryptoProvider(secret);
+        } else if (enableKeyId) {
+            return new SymmetricKeyInternalCryptoProvider(secret, StringUtils.defaultIfBlank(oldSecret, secret), true);
         }
+        return new SymmetricKeyInternalCryptoProvider(secret);
     }
 
     private KeyResolver getContextIndependentKeyResolver() {
