@@ -242,7 +242,10 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
         if (AES_GCM_SYMMETRIC_CRYPTO_ALGORITHM.equals(algorithm)) {
             return encryptWithGCMMode(cleartext, javaSecurityAPIProvider, returnSelfContainedCipherText, params);
         }
-        return encryptWithoutGCMMode(cleartext, javaSecurityAPIProvider, returnSelfContainedCipherText, params);
+        if (StringUtils.isBlank(algorithm)) {
+            algorithm = DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM;
+        }
+        return encryptWithoutGCMMode(cleartext, algorithm, javaSecurityAPIProvider, returnSelfContainedCipherText, params);
     }
 
     private SecretKeySpec getSecretKey() {
@@ -332,6 +335,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
      * This method will encrypt a given plain text in AES/ECB/PKCS5Padding cipher transformation
      *
      * @param plaintext                     Plain text that need to be encrypted in this mode.
+     * @param algorithm                     The encryption algorithm.
      * @param javaSecurityAPIProvider       Crypto provider.
      * @param returnSelfContainedCipherText Whether the ciphertext should be in self-contained  mode or not.
      * @param params                        Optional parameters.
@@ -339,7 +343,7 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
      * @return byte array of encrypted cipher text.
      * @throws CryptoException
      */
-    private byte[] encryptWithoutGCMMode(byte[] plaintext, String javaSecurityAPIProvider,
+    private byte[] encryptWithoutGCMMode(byte[] plaintext, String algorithm, String javaSecurityAPIProvider,
                                       boolean returnSelfContainedCipherText, Object... params)
             throws CryptoException {
 
@@ -350,9 +354,9 @@ public class SymmetricKeyInternalCryptoProvider implements InternalCryptoProvide
         }
         try {
             if (StringUtils.isBlank(javaSecurityAPIProvider)) {
-                cipher = Cipher.getInstance(DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM);
+                cipher = Cipher.getInstance(algorithm);
             } else {
-                cipher = Cipher.getInstance(DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM, javaSecurityAPIProvider);
+                cipher = Cipher.getInstance(algorithm, javaSecurityAPIProvider);
             }
             cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
 
